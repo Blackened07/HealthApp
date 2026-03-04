@@ -2,9 +2,9 @@ package ru.HealthApp.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import ru.HealthApp.entities.Family;
-import ru.HealthApp.entities.FamilyRole;
-import ru.HealthApp.entities.User;
+import ru.HealthApp.repository.entities.Family;
+import ru.HealthApp.repository.entities.FamilyRole;
+import ru.HealthApp.repository.entities.User;
 
 import java.time.LocalDateTime;
 import java.util.List;

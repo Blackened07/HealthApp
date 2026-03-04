@@ -1,4 +1,4 @@
-package ru.HealthApp.entities;
+package ru.HealthApp.repository.entities;
 
 
 public enum HealthMetricType {

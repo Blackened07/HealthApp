@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "health_records")
@@ -39,4 +40,19 @@ public class HealthRecord {
         return HealthMetricType.fromString(this.type);
     }
 
+    public String getUserName() {
+        return user.getFirstName();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        HealthRecord that = (HealthRecord) object;
+        return id == that.id && Objects.equals(type, that.type) && healthMetricType == that.healthMetricType && Objects.equals(value1, that.value1) && Objects.equals(value2, that.value2) && Objects.equals(note, that.note) && Objects.equals(user, that.user) && Objects.equals(timestamp, that.timestamp);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, type, healthMetricType, value1, value2, note, user, timestamp);
+    }
 }

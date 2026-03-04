@@ -18,6 +18,6 @@ public interface HealthRecordService {
     HealthRecordResponseDTO updateRecord(Long actorId, Long recordId, HealthRecordRequestDTO newData);
 
     List<HealthMetricType> getDefaultMetrics();
-    
+
     void deleteRecord(Long actorId, Long recordId);
 }

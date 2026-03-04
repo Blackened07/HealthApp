@@ -6,6 +6,7 @@ public enum HealthMetricType {
     BLOOD_PRESSURE,
     GLUCOSE,
     WEIGHT,
+    TEMPERATURE,
 
     CUSTOM;
 

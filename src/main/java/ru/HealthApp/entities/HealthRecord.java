@@ -35,9 +35,6 @@ public class HealthRecord {
     @Column(nullable = false)
     private LocalDateTime timestamp;
 
-    @Column(nullable = false)
-    private LocalDateTime lastActivity;
-
     public HealthMetricType getMetricType() {
         return HealthMetricType.fromString(this.type);
     }

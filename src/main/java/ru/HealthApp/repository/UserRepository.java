@@ -21,9 +21,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findUserByPassword(String password);
 
-    //boolean existByEmail(String email);
+    boolean existsByEmail(String email);
 
     Optional<User> findByFamilyAndFamilyRole(Family family, FamilyRole role);
 
-    //List<User> findAllByLastActivityBefore(LocalDateTime threshold);
+    List<User> findAllByLastActivityBefore(LocalDateTime threshold);
 }

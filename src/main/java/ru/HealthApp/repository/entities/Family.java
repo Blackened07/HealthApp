@@ -31,6 +31,16 @@ public class Family {
     )
     private List<User> doctors;
 
+
+    public User findAdmin() {
+        for (User user : users) {
+            if (user.getFamilyRole() == FamilyRole.ADMIN) {
+                return user;
+            }
+        }
+        return null;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;

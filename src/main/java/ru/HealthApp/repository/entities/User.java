@@ -36,6 +36,10 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime lastActivity;
 
+    public User getAdmin() {
+        return family.findAdmin();
+    }
+
     /// Поле isVirtual определяет является ли пользователь активным юзером (false) или прикреплённой учёткой к админу семьи(true)
     private boolean isVirtual;
 

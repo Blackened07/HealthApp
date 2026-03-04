@@ -13,7 +13,10 @@ public enum ExceptionMessage {
     MAIN_VALUE_ERROR("Основной показатель не может быть пустым."),
     VALUE_OUT_OF_RANGE("%n за пределами нормы: от %.1n до %.1n"),
     BP_VALUE2_ERROR("Для замера давления необходимы два числа (верхнее и нижнее)"),
-    SUB_ZERO_VALUE("Значение показателя должно быть больше нуля.");
+    SUB_ZERO_VALUE("Значение показателя должно быть больше нуля."),
+    PRESSURE_DANGER("Критическое давление: %.0f/%.0f"),
+    GLUCOSE_DANGER("Опасный уровень сахара: %.1f"),
+    TEMPERATURE_DANGER("Критическая температура: %.1f");
 
     private final String message;
 

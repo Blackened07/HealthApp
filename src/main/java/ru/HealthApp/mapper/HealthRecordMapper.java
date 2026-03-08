@@ -10,14 +10,14 @@ import java.time.LocalDateTime;
 @Component
 public class HealthRecordMapper {
 
-    public HealthRecord mapToEntity(HealthRecordRequestDTO data, User target) {
+    public HealthRecord toEntity(HealthRecordRequestDTO data, User target) {
 
         HealthRecord record = new HealthRecord();
 
-        record.setType(data.getType());
-        record.setValue1(data.getValue1());
-        record.setValue2(data.getValue2());
-        record.setNote(data.getNote());
+        record.setType(data.type());
+        record.setValue1(data.value1());
+        record.setValue2(data.value2());
+        record.setNote(data.note());
 
         record.setUser(target);
         record.setHealthMetricType(record.getMetricType());
@@ -26,17 +26,16 @@ public class HealthRecordMapper {
         return record;
     }
 
-    public HealthRecordResponseDTO mapToResponse(HealthRecord record) {
-        HealthRecordResponseDTO responseDTO = new HealthRecordResponseDTO();
+    public HealthRecordResponseDTO toResponse(HealthRecord record) {
 
-        responseDTO.setId(record.getId());
-        responseDTO.setType(record.getType());
-        responseDTO.setValue1(record.getValue1());
-        responseDTO.setValue2(record.getValue2());
-        responseDTO.setNote(record.getNote());
-        responseDTO.setTimestamp(record.getTimestamp());
-        responseDTO.setUserName(record.getUserName());
-
-        return responseDTO;
+        return new HealthRecordResponseDTO(
+                record.getId(),
+                record.getType(),
+                record.getValue1(),
+                record.getValue2(),
+                record.getNote(),
+                record.getTimestamp(),
+                record.getUserName()
+        );
     }
 }

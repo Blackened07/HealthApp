@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum ExceptionMessage {
     READ_EXCEPTION("Вы не можете просматривать данные пользователя"),
+    NOT_ADMIN_EXCEPTION("Вы не администратор"),
+    NO_FAMILY_EXCEPTION("Вы одиночный юзер"),
     WRITE_EXCEPTION("У вас нет прав на внесение или изменение данных этого пользователя."),
     USER_SEARCHING_ERROR("Пользователь с %n не найден"),
     MAIN_VALUE_ERROR("Основной показатель не может быть пустым."),
@@ -16,7 +18,8 @@ public enum ExceptionMessage {
     SUB_ZERO_VALUE("Значение показателя должно быть больше нуля."),
     PRESSURE_DANGER("Критическое давление: %.0f/%.0f"),
     GLUCOSE_DANGER("Опасный уровень сахара: %.1f"),
-    TEMPERATURE_DANGER("Критическая температура: %.1f");
+    TEMPERATURE_DANGER("Критическая температура: %.1f"),
+    RECORD_NOT_FOUND("Запись не найдена");
 
     private final String message;
 

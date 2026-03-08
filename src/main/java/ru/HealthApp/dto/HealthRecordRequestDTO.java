@@ -1,13 +1,16 @@
 package ru.HealthApp.dto;
 
-import lombok.Data;
+import ru.HealthApp.service.exceptions.ExceptionMessage;
 
-@Data
-public class HealthRecordRequestDTO {
+public record HealthRecordRequestDTO(String type, Double value1, Double value2, String note) {
 
-    private String type;
-    private Double value1;
-    private Double value2;
-    private String note;
+    public HealthRecordRequestDTO {
+        if (type == null || type.isBlank()) {
+            throw new IllegalArgumentException(ExceptionMessage.MAIN_VALUE_ERROR.getMessage());
+        }
 
+        if (value1 == null || value1 <= 0) {
+            throw new IllegalArgumentException(ExceptionMessage.SUB_ZERO_VALUE.getMessage());
+        }
+    }
 }

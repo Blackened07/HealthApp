@@ -3,7 +3,9 @@ package ru.HealthApp.service.exceptions;
 import lombok.Getter;
 
 @Getter
-public abstract class HealthAppException extends RuntimeException {
+public sealed abstract class HealthAppException
+        extends RuntimeException
+        permits AccessDeniedException, IllegalActionException, InvalidMetricException, ResourceNotFoundException {
     /// true - пишем в логи
     private final boolean critical;
 
@@ -12,5 +14,8 @@ public abstract class HealthAppException extends RuntimeException {
         this.critical = isCritical;
     }
 
-
+    @Override
+    public synchronized Throwable fillInStackTrace() {
+        return super.fillInStackTrace();
+    }
 }

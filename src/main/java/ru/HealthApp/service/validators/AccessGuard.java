@@ -34,7 +34,7 @@ public class AccessGuard {
     public void checkReadAccess(User actor, User target) {
 
         if (actor.getFamilyRole() == FamilyRole.DOCTOR) {
-            boolean isDoctorOfThisFamily = target.getFamily().getDoctors().contains(actor);
+            boolean isDoctorOfThisFamily = target.isDoctorOfUserFamily(actor);
             if (isDoctorOfThisFamily) {
                 return;
             }
@@ -49,6 +49,17 @@ public class AccessGuard {
         }
 
         throw new AccessDeniedException(ExceptionMessage.READ_EXCEPTION.getMessage(), true);
+    }
+
+    public void checkFamilyDashboardAccess(User actor) {
+
+        if (actor.getFamilyRole() != FamilyRole.ADMIN) {
+            throw new AccessDeniedException(ExceptionMessage.NOT_ADMIN_EXCEPTION.getMessage(), true);
+        }
+
+        if (actor.getFamily() == null) {
+            throw new AccessDeniedException(ExceptionMessage.NO_FAMILY_EXCEPTION.getMessage(), true);
+        }
     }
 
     private boolean isSameFamily(User actor, User target) {

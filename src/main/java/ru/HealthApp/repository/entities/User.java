@@ -40,6 +40,10 @@ public class User {
         return family.findAdmin();
     }
 
+    public boolean isDoctorOfUserFamily(User doctor) {
+        return family.isFamilyDoctor(doctor);
+    }
+
     /// Поле isVirtual определяет является ли пользователь активным юзером (false) или прикреплённой учёткой к админу семьи(true)
     private boolean isVirtual;
 

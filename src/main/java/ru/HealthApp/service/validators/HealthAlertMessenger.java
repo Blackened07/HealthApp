@@ -1,7 +1,6 @@
 package ru.HealthApp.service.validators;
 
 import org.springframework.stereotype.Component;
-import ru.HealthApp.repository.entities.HealthMetricType;
 import ru.HealthApp.repository.entities.HealthRecord;
 import ru.HealthApp.repository.entities.User;
 import ru.HealthApp.service.exceptions.ExceptionMessage;
@@ -10,21 +9,19 @@ import ru.HealthApp.service.exceptions.ExceptionMessage;
 @Component
 public class HealthAlertMessenger {
 
+    //создавать этот класс с пользовательскими нормами
 
     public void check(HealthRecord record) {
 
         String alertReason = "";
-        boolean isDangerous = false;
+        boolean isCritical = false;
+        double v1 = record.getValue1();
+        double v2 = record.getValue2();
 
-        HealthMetricType metricType = HealthMetricType.fromString(record.getType());
-
-        switch (metricType) {
+        switch (record.getMetricType()) {
             case BLOOD_PRESSURE -> {
-                double v1 = record.getValue1();
-                double v2 = record.getValue2();
-
                 if (isPressureCritical(v1, v2)) {
-                    isDangerous = true;
+                    isCritical = true;
                     alertReason = ExceptionMessage.createMessageWithArgs(
                             ExceptionMessage.PRESSURE_DANGER,
                             v1, v2
@@ -32,32 +29,29 @@ public class HealthAlertMessenger {
                 }
             }
             case GLUCOSE -> {
-                double v = record.getValue1();
-
-                if (isGlucoseCritical(v)) {
-                    isDangerous = true;
+                if (isGlucoseCritical(v1)) {
+                    isCritical = true;
                     alertReason = ExceptionMessage.createMessageWithArgs(
-                            ExceptionMessage.GLUCOSE_DANGER, v
+                            ExceptionMessage.GLUCOSE_DANGER, v1
                     );
                 }
             }
             case TEMPERATURE -> {
-                double v = record.getValue1();
-
-                if (isTemperatureCritical(v)) {
-                    isDangerous = true;
+                if (isTemperatureCritical(v1)) {
+                    isCritical = true;
                     alertReason = ExceptionMessage.createMessageWithArgs(
-                            ExceptionMessage.TEMPERATURE_DANGER, v
+                            ExceptionMessage.TEMPERATURE_DANGER, v1
                     );
                 }
             }
             case WEIGHT -> {}
         }
 
-        if (isDangerous) {
+        if (isCritical) {
             sendAdminAlert(record, alertReason);
         }
-     }
+
+    }
 
     private boolean isPressureCritical(Double sys, Double dia) {
         if (sys == null || dia == null) return false;
@@ -75,7 +69,7 @@ public class HealthAlertMessenger {
     }
 
     private void sendAdminAlert(HealthRecord record, String reason) {
-        User userAdmin = record.getAdmin();
+        User userAdmin = record.getAdminOfUserOfThisRecord();
 
         if (userAdmin == null) {
             return;

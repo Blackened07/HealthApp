@@ -31,6 +31,10 @@ public class Family {
     )
     private List<User> doctors;
 
+    public boolean isFamilyDoctor(User doctor) {
+        return doctors.contains(doctor);
+    }
+
 
     public User findAdmin() {
         for (User user : users) {

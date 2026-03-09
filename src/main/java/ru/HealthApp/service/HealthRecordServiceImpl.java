@@ -92,15 +92,16 @@ public class HealthRecordServiceImpl implements HealthRecordService {
     }
 
     @Override
+    @Transactional
     public HealthRecordResponseDTO updateRecord(Long actorId, Long recordId, HealthRecordRequestDTO newData) {
 
         User actor = getUserFromRepository(actorId);
         HealthRecord record = getRecordFromRepository(recordId);
 
-        accessGuard.checkWriteAccess(actor, actor);
+        accessGuard.checkWriteAccess(actor, record.getUser());
         recordValuesValidator.validate(newData);
 
-        update(record, newData);
+        this.update(record, newData);
 
         HealthRecord updated = healthRecordRepository.save(record);
 
@@ -113,6 +114,7 @@ public class HealthRecordServiceImpl implements HealthRecordService {
     }
 
     @Override
+    @Transactional
     public void deleteRecord(Long actorId, Long recordId) {
         User actor = getUserFromRepository(actorId);
         HealthRecord record = getRecordFromRepository(recordId);
@@ -124,19 +126,13 @@ public class HealthRecordServiceImpl implements HealthRecordService {
 
     private User getUserFromRepository(Long actorId) {
         return userRepository.findById(actorId).orElseThrow(() ->
-                new ResourceNotFoundException(
-                        ExceptionMessage.createMessageWithArgs(ExceptionMessage.USER_SEARCHING_ERROR, actorId),
-                        false
-                )
+                ResourceNotFoundException.userNotFound(actorId)
         );
     }
 
     private HealthRecord getRecordFromRepository(Long recordId) {
         return healthRecordRepository.findById(recordId).orElseThrow(() ->
-                new ResourceNotFoundException(
-                        ExceptionMessage.createMessageWithArgs(ExceptionMessage.RECORD_NOT_FOUND, ""),
-                        false
-                )
+                ResourceNotFoundException.recordNotFound(recordId)
         );
     }
 
@@ -149,7 +145,7 @@ public class HealthRecordServiceImpl implements HealthRecordService {
                 record.setValue2(v2);
                 record.setNote(note);
             } else {
-                throw new IllegalActionException("Разные типы! Невозможно отредактировать запись!", false);
+                throw new IllegalActionException("Разные типы! Невозможно отредактировать запись!");
             }
 
         }

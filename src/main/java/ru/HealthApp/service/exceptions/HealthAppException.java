@@ -16,6 +16,6 @@ public sealed abstract class HealthAppException
 
     @Override
     public synchronized Throwable fillInStackTrace() {
-        return super.fillInStackTrace();
+        return this;
     }
 }

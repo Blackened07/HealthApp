@@ -3,7 +3,6 @@ package ru.HealthApp.service.validators;
 import org.springframework.stereotype.Component;
 import ru.HealthApp.dto.HealthRecordRequestDTO;
 import ru.HealthApp.repository.entities.HealthMetricType;
-import ru.HealthApp.service.exceptions.ExceptionMessage;
 import ru.HealthApp.service.exceptions.InvalidMetricException;
 
 @Component
@@ -38,10 +37,7 @@ public class RecordValuesValidator {
     private void validatePressure(HealthRecordRequestDTO data) {
 
         if (data.value2() == null) {
-            throw new InvalidMetricException(
-                    ExceptionMessage.BP_VALUE2_ERROR.getMessage(),
-                    false
-            );
+            throw InvalidMetricException.pressureValue2Required();
         }
 
         validateRange(data.value1(), 50.0, 250.0, "Верхнее давление");
@@ -51,24 +47,14 @@ public class RecordValuesValidator {
 
     private void validateCustom(HealthRecordRequestDTO data) {
         if (data.value1() <= 0) {
-            throw new InvalidMetricException(
-                    ExceptionMessage.SUB_ZERO_VALUE.getMessage(),
-                    false
-            );
+            throw InvalidMetricException.subZeroValue();
         }
 
     }
 
     private void validateRange(Double value, double min, double max, String type) {
         if (value < min || value > max) {
-            throw new InvalidMetricException(
-                    ExceptionMessage.createMessageWithArgs(
-                            ExceptionMessage.VALUE_OUT_OF_RANGE,
-                            type,
-                            min,
-                            max),
-                    false
-            );
+            throw InvalidMetricException.outOfRange(type, min, max);
         }
 
     }

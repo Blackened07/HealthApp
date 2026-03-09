@@ -40,12 +40,96 @@ public class User {
         return family.findAdmin();
     }
 
+    /**
+     * Поле isVirtual определяет является ли пользователь активным юзером (false)
+     * или прикреплённой учёткой к админу семьи(true)
+     */
+    private boolean isVirtual;
+
+    public boolean isAdmin() {
+        return familyRole == FamilyRole.ADMIN;
+    }
+
+    public boolean isDoctor() {
+        return familyRole == FamilyRole.DOCTOR;
+    }
+
+    public boolean isMember() {
+        return familyRole == FamilyRole.MEMBER;
+    }
+
+    public boolean isVirtual() {
+        return familyRole == FamilyRole.VIRTUAL;
+    }
+
+    public boolean isNoFamily() {
+        return family == null;
+    }
+
     public boolean isDoctorOfUserFamily(User doctor) {
         return family.isFamilyDoctor(doctor);
     }
 
-    /// Поле isVirtual определяет является ли пользователь активным юзером (false) или прикреплённой учёткой к админу семьи(true)
-    private boolean isVirtual;
+    // Специфичные методы для разных ролей
+
+    /**
+     * Может ли пользователь управлять семьей (добавлять/удалять членов)
+     */
+    public boolean canManageFamily() {
+        return isAdmin();
+    }
+
+    /**
+     * Может ли пользователь записывать медицинские данные
+     */
+    public boolean canWriteMedicalRecords() {
+        return !isDoctor(); // Врачи могут только читать
+    }
+
+    /**
+     * Может ли пользователь просматривать семейную панель
+     */
+    public boolean canAccessFamilyDashboard() {
+        return isAdmin();
+    }
+
+    /**
+     * Может ли пользователь просматривать медицинские записи (для врачей)
+     */
+    public boolean canAccessMedicalRecords() {
+        return isDoctor();
+    }
+
+    /**
+     * Может ли данный пользователь управлять этим пользователем
+     */
+    public boolean canBeManagedBy(User manager) {
+        return isVirtual() && manager.isAdmin() && manager.getFamily().equals(getFamily());
+    }
+
+    /**
+     * Может ли данный пользователь записывать данные для этого пользователя
+     */
+    public boolean canBeWrittenBy(User writer) {
+        if (writer.equals(this)) return true; // Себе всегда можно
+        if (isVirtual() && writer.isAdmin() && writer.getFamily().equals(getFamily())) return true;
+        return writer.getFamily().equals(getFamily()) && writer.isAdmin();
+    }
+
+    /**
+     * Может ли данный пользователь читать данные этого пользователя
+     */
+    public boolean canBeReadBy(User reader) {
+        if (reader.equals(this)) return true; // Себе всегда можно
+
+        // Врач может читать если он врач этой семьи
+        if (reader.isDoctor() && isDoctorOfUserFamily(reader)) {
+            return true;
+        }
+
+        // Члены одной семьи могут читать друг у друга
+        return !reader.isNoFamily() && reader.getFamily().equals(getFamily());
+    }
 
     @Override
     public boolean equals(Object object) {

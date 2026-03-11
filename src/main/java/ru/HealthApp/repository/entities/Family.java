@@ -35,7 +35,6 @@ public class Family {
         return doctors.contains(doctor);
     }
 
-
     public User findAdmin() {
         for (User user : users) {
             if (user.getFamilyRole() == FamilyRole.ADMIN) {

@@ -27,6 +27,7 @@ public class HealthRecord {
     private Double value1;
     private Double value2;
 
+    @Column
     private String note;
 
     @ManyToOne

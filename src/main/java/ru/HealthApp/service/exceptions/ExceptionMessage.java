@@ -19,7 +19,10 @@ public enum ExceptionMessage {
     PRESSURE_DANGER("Критическое давление: %.0f/%.0f"),
     GLUCOSE_DANGER("Опасный уровень сахара: %.1f"),
     TEMPERATURE_DANGER("Критическая температура: %.1f"),
-    RECORD_NOT_FOUND("Запись не найдена");
+    RECORD_NOT_FOUND("Запись не найдена"),
+    FAMILY_NOT_FOUND("Семья не найдена"),
+    USER_ALREADY_IN_FAMILY("Пользователь уже состоит в семье"),
+    CANNOT_REMOVE_ADMIN("Нельзя удалить админа семьи");
 
     private final String message;
 

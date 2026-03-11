@@ -23,4 +23,8 @@ public final class ResourceNotFoundException extends HealthAppException {
         return new ResourceNotFoundException("Запись", recordId);
     }
 
+    public static ResourceNotFoundException familyNotFound(Long familyId) {
+        return new ResourceNotFoundException("Семья", familyId);
+    }
+
 }

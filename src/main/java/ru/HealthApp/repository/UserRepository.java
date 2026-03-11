@@ -26,4 +26,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByFamilyAndFamilyRole(Family family, FamilyRole role);
 
     List<User> findAllByLastActivityBefore(LocalDateTime threshold);
+
+    List<User> findByFamilyId(Long familyId);
 }

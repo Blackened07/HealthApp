@@ -6,7 +6,7 @@ import lombok.Getter;
 public sealed abstract class HealthAppException
         extends RuntimeException
         permits AccessDeniedException, IllegalActionException, InvalidMetricException, ResourceNotFoundException {
-    /// true - пишем в логи
+
     private final boolean critical;
 
     public HealthAppException(String message, boolean isCritical) {

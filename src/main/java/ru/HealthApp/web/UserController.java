@@ -19,9 +19,7 @@ public class UserController {
     private final UserService userService;
     private final UserPermissionService userPermissionService;
 
-    /**
-     * Создание нового пользователя (регистрация)
-     */
+
     @PostMapping("/register")
     public ResponseEntity<User> registerUser(@RequestBody RegisterUserRequest request) {
         if (userService.existsByEmail(request.email())) {
@@ -36,9 +34,6 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    /**
-     * Получение пользователя по ID
-     */
     @GetMapping("/{userId}")
     public ResponseEntity<User> getUser(@PathVariable Long userId, @RequestParam Long currentUserId) {
         User currentUser = userService.findById(currentUserId);
@@ -51,9 +46,7 @@ public class UserController {
         return ResponseEntity.ok(targetUser);
     }
 
-    /**
-     * Проверка доступности email
-     */
+
     @GetMapping("/check-email")
     public ResponseEntity<EmailCheckResponse> checkEmail(@RequestParam String email) {
         boolean available = !userService.existsByEmail(email);

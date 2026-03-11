@@ -24,9 +24,7 @@ public class FamilyService {
     private final UserRepository userRepository;
     private final UserService userService;
 
-    /**
-     * Создание новой семьи с админом
-     */
+
     @Transactional
     public Family createFamily(Long userId, String secondMemberEmail, String familyName) {
 
@@ -59,18 +57,12 @@ public class FamilyService {
         return family;
     }
 
-    /**
-     * Приглашение существующего пользователя в семью
-     */
     @Transactional
     public void inviteToFamily(Long familyId, String email, FamilyRole role) {
-        // Находим семью
         Family family = findFamilyById(familyId);
 
-        // Находим пользователя по email
         User user = findByEmail(email);
 
-        // Проверяем, что пользователь еще не состоит в семье
         if (user.getFamily() != null) {
             throw new IllegalArgumentException("Пользователь уже состоит в семье");
         }
@@ -83,18 +75,13 @@ public class FamilyService {
         // TODO: Отправить уведомление пользователю
     }
 
-    /**
-     * Создание виртуального члена семьи
-     */
     @Transactional
     public User createVirtualMember(Long familyId, String firstName, FamilyRole role) {
-        // Находим семью
+
         Family family = findFamilyById(familyId);
 
-        // Находим админа семьи
         User admin = family.findAdmin();
 
-        // Создаем виртуального пользователя
         User virtualMember = new User();
         virtualMember.setEmail(admin.getEmail() + "_virtual_" + UUID.randomUUID().toString().substring(0, 8));
         virtualMember.setPassword(UUID.randomUUID().toString()); // случайный пароль
@@ -106,16 +93,10 @@ public class FamilyService {
         return userRepository.save(virtualMember);
     }
 
-    /**
-     * Получение всех членов семьи
-     */
     public List<User> getFamilyMembers(Long familyId) {
         return userRepository.findByFamilyId(familyId);
     }
 
-    /**
-     * Удаление члена из семьи
-     */
     @Transactional
     public void removeMemberFromFamily(Long familyId, Long userId) {
         User user = findUserById(userId);
@@ -125,7 +106,6 @@ public class FamilyService {
             throw new IllegalArgumentException("Пользователь не состоит в указанной семье");
         }
 
-        // Нельзя удалить админа семьи
         if (user.isAdmin()) {
             throw new IllegalArgumentException("Нельзя удалить админа семьи");
         }
@@ -134,33 +114,22 @@ public class FamilyService {
         userRepository.save(user);
     }
 
-    /**
-     * Поиск семьи по ID
-     */
+
     public Family findFamilyById(Long familyId) {
         return familyRepository.findById(familyId)
                 .orElseThrow(() -> ResourceNotFoundException.familyNotFound(familyId));
     }
 
-    /**
-     * Поиск пользователя по ID
-     */
     public User findUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> ResourceNotFoundException.userNotFound(userId));
     }
 
-    /**
-     * Поиск пользователя по email
-     */
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
     }
 
-    /**
-     * Проверка существования email
-     */
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }

@@ -41,11 +41,6 @@ public class User {
         return family != null ? family.findAdmin() : null;
     }
 
-    /**
-     * Поле isVirtual определяет является ли пользователь активным юзером (false)
-     * или прикреплённой учёткой к админу семьи(true)
-     */
-
     public boolean isAdmin() {
         return familyRole == FamilyRole.ADMIN;
     }

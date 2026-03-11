@@ -15,22 +15,7 @@ public class AuthController {
     private final UserService userService;
 
 
-    @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
-
-        if (userService.existsByEmail(request.email())) {
-            return ResponseEntity.badRequest()
-                    .body(new AuthResponse("Пользователь с таким email уже существует", false));
-        }
-
-        User user = userService.createUser(
-                request.email(),
-                request.password(),
-                request.firstName()
-        );
-
-        return ResponseEntity.ok(new AuthResponse("Пользователь успешно зарегистрирован", true));
-    }
+    // Регистрация перенесена в UserController для избежания дублирования
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
@@ -59,20 +44,7 @@ public class AuthController {
     }
 
 
-    public record RegisterRequest(
-            @NotBlank(message = "Email не может быть пустым")
-            @Email(message = "Некорректный формат email")
-            String email,
-            
-            @NotBlank(message = "Пароль не может быть пустым")
-            @Size(min = 6, message = "Пароль должен содержать минимум 6 символов")
-            String password,
-            
-            @NotBlank(message = "Имя не может быть пустым")
-            @Size(min = 2, max = 50, message = "Имя должно быть от 2 до 50 символов")
-            String firstName
-    ) {}
-
+    
     public record LoginRequest(
             @NotBlank(message = "Email не может быть пустым")
             @Email(message = "Некорректный формат email")

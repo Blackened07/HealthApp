@@ -38,6 +38,7 @@ public class UserService {
         user.setEmail(email);
         user.setPassword(password);
         user.setFirstName(firstName);
+        user.setLastActivity(java.time.LocalDateTime.now());
         
         return userRepository.save(user);
     }

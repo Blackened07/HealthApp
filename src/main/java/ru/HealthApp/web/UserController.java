@@ -1,5 +1,6 @@
 package ru.HealthApp.web;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -21,7 +22,8 @@ public class UserController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody RegisterUserRequest request) {
+    public ResponseEntity<User> registerUser(@Valid @RequestBody RegisterUserRequest request) {
+
         if (userService.existsByEmail(request.email())) {
             return ResponseEntity.badRequest().build();
         }

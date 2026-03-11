@@ -2,6 +2,7 @@ package ru.HealthApp.service;
 
 import org.springframework.stereotype.Service;
 import ru.HealthApp.repository.entities.User;
+import ru.HealthApp.repository.entities.FamilyRole;
 
 @Service
 public class UserPermissionService {

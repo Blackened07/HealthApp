@@ -69,7 +69,7 @@ public class HealthAlertMessenger {
     }
 
     private void sendAdminAlert(HealthRecord record, String reason) {
-        User userAdmin = record.getAdminOfUserOfThisRecord();
+        User userAdmin = record.getAdminUserOfThisRecord();
 
         if (userAdmin == null) {
             return;

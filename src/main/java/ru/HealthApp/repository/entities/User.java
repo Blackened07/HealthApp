@@ -27,7 +27,8 @@ public class User {
     private String firstName;
 
     @Enumerated(EnumType.STRING)
-    private FamilyRole familyRole;
+    @Column(nullable = false)
+    private FamilyRole familyRole = FamilyRole.MEMBER;
 
     @ManyToOne
     @JoinColumn(name = "family_id")
@@ -37,7 +38,7 @@ public class User {
     private LocalDateTime lastActivity;
 
     public User getAdmin() {
-        return family.findAdmin();
+        return family != null ? family.findAdmin() : null;
     }
 
     /**
@@ -53,12 +54,12 @@ public class User {
         return familyRole == FamilyRole.DOCTOR;
     }
 
-    public boolean isMember() {
-        return familyRole == FamilyRole.MEMBER;
-    }
-
     public boolean isVirtual() {
         return familyRole == FamilyRole.VIRTUAL;
+    }
+
+    public boolean isMember() {
+        return familyRole == FamilyRole.MEMBER;
     }
 
     public boolean isNoFamily() {

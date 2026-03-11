@@ -45,7 +45,7 @@ public class HealthRecord {
         return user.getFirstName();
     }
 
-    public User getAdminOfUserOfThisRecord() {
+    public User getAdminUserOfThisRecord() {
         return user.getAdmin();
     }
 

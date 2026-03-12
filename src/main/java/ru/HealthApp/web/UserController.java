@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.HealthApp.repository.entities.User;
 import ru.HealthApp.service.UserService;
-import ru.HealthApp.service.UserPermissionService;
+import ru.HealthApp.service.validators.AccessGuard;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -18,7 +18,7 @@ import ru.HealthApp.service.UserPermissionService;
 public class UserController {
 
     private final UserService userService;
-    private final UserPermissionService userPermissionService;
+    private final AccessGuard accessGuard;
 
 
     @PostMapping("/register")
@@ -36,14 +36,14 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<User> getUser(@PathVariable Long userId, @RequestParam Long currentUserId) {
-        User currentUser = userService.findById(currentUserId);
-        User targetUser = userService.findById(userId);
+    @GetMapping("/{targetUserId}")
+    public ResponseEntity<User> getUser(@PathVariable Long targetUserId, @RequestParam Long readerUserId) {
+        System.out.println("Вызвали метод getUser");
+
+        User readerUser = userService.findById(readerUserId);
+        User targetUser = userService.findById(targetUserId);
         
-        if (!userPermissionService.canBeReadBy(targetUser, currentUser)) {
-            return ResponseEntity.status(403).build();
-        }
+        accessGuard.checkReadAccess(readerUser, targetUser);
         
         return ResponseEntity.ok(targetUser);
     }

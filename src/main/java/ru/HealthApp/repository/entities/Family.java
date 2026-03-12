@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,7 +22,7 @@ public class Family {
     private String name;
 
     @OneToMany(mappedBy = "family", cascade = CascadeType.ALL)
-    private List<User> users;
+    private List<User> users = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
@@ -29,10 +30,23 @@ public class Family {
             joinColumns = @JoinColumn(name = "family_id"),
             inverseJoinColumns = @JoinColumn(name = "doctor_id")
     )
-    private List<User> doctors;
+    private List<User> doctors = new ArrayList<>();
 
     public boolean isFamilyDoctor(User doctor) {
         return doctors.contains(doctor);
+    }
+
+    public void addUser(User user) {
+        if (!users.contains(user)) {
+            users.add(user);
+            user.setFamily(this);
+        }
+    }
+
+    public void removeUser(User user) {
+        if (users.remove(user)) {
+            user.setFamily(null);
+        }
     }
 
     public User findAdmin() {

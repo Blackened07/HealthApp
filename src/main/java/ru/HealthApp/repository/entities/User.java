@@ -62,6 +62,10 @@ public class User {
     }
 
     public boolean isDoctorOfUserFamily(User doctor) {
+
+        if (isNoFamily()) {
+            return false;
+        }
         return family.isFamilyDoctor(doctor);
     }
 

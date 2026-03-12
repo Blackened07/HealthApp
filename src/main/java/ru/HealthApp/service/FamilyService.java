@@ -42,17 +42,23 @@ public class FamilyService {
             throw new IllegalArgumentException(ExceptionMessage.USER_ALREADY_IN_FAMILY.getMessage());
         }
 
+        if (admin.getId().equals(member.getId())) {
+            throw new IllegalArgumentException("Нельзя добавить самого себя в семью");
+        }
+
         Family family = new Family();
         family.setName(familyName);
         family = familyRepository.save(family);
 
-        admin.setFamily(family);
         admin.setFamilyRole(FamilyRole.ADMIN);
-
-        member.setFamily(family);
         member.setFamilyRole(FamilyRole.MEMBER);
 
+        family.addUser(admin);
+        family.addUser(member);
+
         userRepository.save(admin);
+        userRepository.save(member);
+        familyRepository.save(family);
 
         return family;
     }
@@ -61,14 +67,13 @@ public class FamilyService {
     public void inviteToFamily(Long familyId, String email, FamilyRole role) {
         Family family = findFamilyById(familyId);
 
-        User user = findByEmail(email);
+        User user = userService.findByEmail(email);
 
         if (user.getFamily() != null) {
             throw new IllegalArgumentException("Пользователь уже состоит в семье");
         }
 
-        // Добавляем пользователя в семью
-        user.setFamily(family);
+        family.addUser(user);
         user.setFamilyRole(role);
         userRepository.save(user);
 
@@ -99,7 +104,7 @@ public class FamilyService {
 
     @Transactional
     public void removeMemberFromFamily(Long familyId, Long userId) {
-        User user = findUserById(userId);
+        User user = userService.findById(userId);
         Family family = findFamilyById(familyId);
 
         if (user.getFamily().getId() != familyId) {
@@ -110,6 +115,7 @@ public class FamilyService {
             throw new IllegalArgumentException("Нельзя удалить админа семьи");
         }
 
+        family.removeUser(user);
         user.setFamily(null);
         userRepository.save(user);
     }
@@ -118,19 +124,5 @@ public class FamilyService {
     public Family findFamilyById(Long familyId) {
         return familyRepository.findById(familyId)
                 .orElseThrow(() -> ResourceNotFoundException.familyNotFound(familyId));
-    }
-
-    public User findUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> ResourceNotFoundException.userNotFound(userId));
-    }
-
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
-    }
-
-    public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
     }
 }

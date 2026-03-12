@@ -6,6 +6,7 @@ import ru.HealthApp.repository.UserRepository;
 import ru.HealthApp.repository.entities.FamilyRole;
 import ru.HealthApp.repository.entities.User;
 import ru.HealthApp.service.exceptions.ResourceNotFoundException;
+import ru.HealthApp.utils.PasswordUtil;
 
 import java.util.Optional;
 
@@ -36,7 +37,7 @@ public class UserService {
     public User createUser(String email, String password, String firstName) {
         User user = new User();
         user.setEmail(email);
-        user.setPassword(password);
+        user.setPassword(PasswordUtil.encode(password));
         user.setFirstName(firstName);
         user.setLastActivity(java.time.LocalDateTime.now());
         

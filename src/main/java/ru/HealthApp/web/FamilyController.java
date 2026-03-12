@@ -7,8 +7,9 @@ import ru.HealthApp.repository.entities.Family;
 import ru.HealthApp.repository.entities.FamilyRole;
 import ru.HealthApp.repository.entities.User;
 import ru.HealthApp.service.FamilyService;
-import ru.HealthApp.service.UserPermissionService;
 import jakarta.validation.constraints.*;
+import ru.HealthApp.service.UserService;
+import ru.HealthApp.service.validators.AccessGuard;
 
 import java.util.List;
 
@@ -18,7 +19,8 @@ import java.util.List;
 public class FamilyController {
 
     private final FamilyService familyService;
-    private final UserPermissionService userPermissionService;
+    private final UserService userService;
+    private final AccessGuard accessGuard;
 
 
     @PostMapping("/create")
@@ -37,11 +39,9 @@ public class FamilyController {
             @RequestBody InviteMemberRequest request,
             @RequestParam Long adminId) {
         
-        User admin = familyService.findUserById(adminId);
-        
-        if (!userPermissionService.canManageFamily(admin)) {
-            return ResponseEntity.status(403).build();
-        }
+        User admin = userService.findById(adminId);
+
+        accessGuard.checkManageAccess(admin);
         
         familyService.inviteToFamily(familyId, request.email(), request.role());
         return ResponseEntity.ok().build();
@@ -53,11 +53,9 @@ public class FamilyController {
             @RequestBody CreateVirtualMemberRequest request,
             @RequestParam Long adminId) {
         
-        User admin = familyService.findUserById(adminId);
-        
-        if (!userPermissionService.canManageFamily(admin)) {
-            return ResponseEntity.status(403).build();
-        }
+        User admin = userService.findById(adminId);
+
+        accessGuard.checkManageAccess(admin);
         
         User virtualMember = familyService.createVirtualMember(
                 familyId,
@@ -73,11 +71,9 @@ public class FamilyController {
             @PathVariable Long familyId,
             @RequestParam Long currentUserId) {
         
-        User currentUser = familyService.findUserById(currentUserId);
+        User admin = userService.findById(currentUserId);
         
-        if (!userPermissionService.canAccessFamilyDashboard(currentUser)) {
-            return ResponseEntity.status(403).build();
-        }
+        accessGuard.checkFamilyDashboardAccess(admin);
         
         List<User> members = familyService.getFamilyMembers(familyId);
         return ResponseEntity.ok(members);
@@ -89,11 +85,9 @@ public class FamilyController {
             @PathVariable Long userId,
             @RequestParam Long adminId) {
         
-        User admin = familyService.findUserById(adminId);
+        User admin = userService.findById(adminId);
         
-        if (!userPermissionService.canManageFamily(admin)) {
-            return ResponseEntity.status(403).build();
-        }
+        accessGuard.checkManageAccess(admin);
         
         familyService.removeMemberFromFamily(familyId, userId);
         return ResponseEntity.noContent().build();

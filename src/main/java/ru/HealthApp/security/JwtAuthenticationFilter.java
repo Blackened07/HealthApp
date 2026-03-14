@@ -19,44 +19,54 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, 
-                                  HttpServletResponse response, 
-                                  FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
-        
+
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7); // Удаляем "Bearer "
 
             try {
                 String userEmail = JwtUtil.extractEmail(token);
-                
-                if (userEmail != null && !JwtUtil.validateToken(token, userEmail)) {
-                    UsernamePasswordAuthenticationToken authToken = createAuthToken(userEmail, request);
+                Long userId = JwtUtil.extractUserId(token);
+                String role = JwtUtil.extractUserRole(token);
+
+                if (userEmail != null && JwtUtil.validateToken(token, userEmail)) {
+                    System.out.println("== START CREATING UsernamePasswordAuthenticationToken");
+                    UsernamePasswordAuthenticationToken authToken = createAuthToken(userEmail, userId, role, request);
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    System.out.println("PIZDEC, BURN IN HELL");
                 }
+
             } catch (Exception e) {
                 // Токен невалидный - просто игнорируем
             }
         }
         filterChain.doFilter(request, response);
     }
-    
-    private UsernamePasswordAuthenticationToken createAuthToken(String userEmail, HttpServletRequest request) {
+
+    private UsernamePasswordAuthenticationToken createAuthToken(String userEmail, long userId, String role, HttpServletRequest request) {
+
         List<SimpleGrantedAuthority> authorities = List.of(
-            new SimpleGrantedAuthority("ROLE_USER")
+                new SimpleGrantedAuthority("ROLE_" + role)
         );
-        
-        UsernamePasswordAuthenticationToken authToken = 
-            new UsernamePasswordAuthenticationToken(
-                userEmail, 
-                null,
-                authorities
-            );
-        
+
+
+        UserPrincipal userPrincipal = new UserPrincipal(userEmail, userId, authorities);
+
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(
+                        userPrincipal,
+                        null,
+                        authorities
+                );
+
         authToken.setDetails(new WebAuthenticationDetailsSource()
-            .buildDetails(request));
-        
+                .buildDetails(request));
+
         return authToken;
     }
 }

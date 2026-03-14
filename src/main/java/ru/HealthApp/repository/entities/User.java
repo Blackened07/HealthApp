@@ -1,11 +1,17 @@
 package ru.HealthApp.repository.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -19,6 +25,7 @@ public class User {
     private Long id;
 
     @Column(unique = true, nullable = false)
+    @NotNull(message = "Почти не может быть пустой")
     private String email;
 
     @Column(nullable = false)
@@ -28,7 +35,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private FamilyRole familyRole = FamilyRole.MEMBER;
+    private FamilyRole familyRole = FamilyRole.USER;
 
     @ManyToOne
     @JoinColumn(name = "family_id")

@@ -1,13 +1,17 @@
 package ru.HealthApp.web;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ru.HealthApp.dto.HealthRecordRequestDTO;
 import ru.HealthApp.dto.HealthRecordResponseDTO;
+import ru.HealthApp.security.UserPrincipal;
 import ru.HealthApp.service.HealthRecordService;
+import ru.HealthApp.service.validators.AccessGuard;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -20,13 +24,16 @@ public class HealthRecordController {
 
     private final HealthRecordService healthRecordService;
 
-    @PostMapping
+    @PostMapping("/{targetId}")
     public ResponseEntity<HealthRecordResponseDTO> create(
-            @RequestBody HealthRecordRequestDTO recordRequestDTO,
-            @RequestParam Long authorId,
-            @RequestParam Long targetId
+            @Valid @RequestBody HealthRecordRequestDTO recordRequestDTO,
+            @AuthenticationPrincipal UserPrincipal author,
+            @PathVariable Long targetId
     ) {
+       ;
+        Long authorId = author.userId();
         HealthRecordResponseDTO response = healthRecordService.createRecord(authorId, targetId, recordRequestDTO);
+
         return ResponseEntity.ok(response);
     }
 

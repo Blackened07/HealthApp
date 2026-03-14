@@ -42,7 +42,6 @@ public class HealthRecordService {
 
     @Transactional
     public HealthRecordResponseDTO createRecord(Long actorId, Long targetId, HealthRecordRequestDTO data) {
-
         User actor = userService.findById(actorId);
         User target = userService.findById(targetId);
 

@@ -24,13 +24,13 @@ public class FamilyController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<Family> createFamily(@RequestBody CreateFamilyRequest request) {
+    public ResponseEntity<String> createFamily(@RequestBody CreateFamilyRequest request) {
         Family family = familyService.createFamily(
                 request.userId(),
                 request.secondMemberEmail,
                 request.familyName()
         );
-        return ResponseEntity.ok(family);
+        return ResponseEntity.ok("FAMILY RESPONSE DTO");
     }
 
     @PostMapping("/{familyId}/invite")

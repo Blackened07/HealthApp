@@ -12,7 +12,7 @@
 	<artifactId>HealthApp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>HealthApp</name>
-	<description>Demo project for Spring Boot</description>
+	<description>HealthApp - my first WebApp</description>
 
 	<properties>
 		<java.version>21</java.version>

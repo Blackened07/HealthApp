@@ -26,7 +26,7 @@ public class AuthController {
                         .body(new AuthResponse("Неверный email или пароль", false));
             }
 
-            String token = JwtUtil.generateToken(user.getEmail(), user.getId());
+            String token = JwtUtil.generateToken(user.getEmail(), user.getId(), user.getFamilyRole());
             
             return ResponseEntity.ok(new AuthResponse(token, true));
             

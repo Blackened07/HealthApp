@@ -38,7 +38,6 @@ public class UserController {
 
     @GetMapping("/{targetUserId}")
     public ResponseEntity<User> getUser(@PathVariable Long targetUserId, @RequestParam Long readerUserId) {
-        System.out.println("Вызвали метод getUser");
 
         User readerUser = userService.findById(readerUserId);
         User targetUser = userService.findById(targetUserId);

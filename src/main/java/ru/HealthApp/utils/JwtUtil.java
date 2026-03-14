@@ -32,14 +32,6 @@ public final class JwtUtil {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
-    // Парсим JWT токен
-    public static Claims extractClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-    }
 
     public static String extractEmail(String token) {
 
@@ -47,14 +39,25 @@ public final class JwtUtil {
     }
 
     public static Long extractUserId(String token) {
+
         return extractClaims(token).get("userId", Long.class);
     }
 
-    public static boolean isTokenExpired(String token) {
-        return extractClaims(token).getExpiration().before(new Date());
+    public static boolean validateToken(String token, String email) {
+
+        return extractEmail(token).equals(email) && !isTokenExpired(token);
     }
 
-    public boolean validateToken(String token, String email) {
-        return extractEmail(token).equals(email) && !isTokenExpired(token);
+    // Парсим JWT токен
+    private static Claims extractClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    private static boolean isTokenExpired(String token) {
+        return extractClaims(token).getExpiration().before(new Date());
     }
 }

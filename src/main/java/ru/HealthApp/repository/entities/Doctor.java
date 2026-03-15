@@ -1,7 +1,6 @@
 package ru.HealthApp.repository.entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,19 +13,8 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Doctor {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @Column(unique = true, nullable = false)
-    @NotNull(message = "Почти не может быть пустой")
-    private String email;
-
-    @Column(nullable = false)
-    private String password;
-
-    private String firstName;
+public class Doctor extends Account {
+    // Специальные поля типа специализация, лицензия и тд
 
     @ManyToMany(mappedBy = "doctors")
     private List<Family> families = new ArrayList<>();

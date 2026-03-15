@@ -17,7 +17,6 @@ public class AccessGuard {
         }
     }
 
-
     public void checkReadAccess(User reader, User target) {
         if (!canBeReadBy(target, reader)) {
             throw new AccessDeniedException(ExceptionMessage.READ_EXCEPTION.getMessage());

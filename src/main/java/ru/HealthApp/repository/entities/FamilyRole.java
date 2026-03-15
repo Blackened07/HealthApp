@@ -1,9 +1,8 @@
 package ru.HealthApp.repository.entities;
 
 public enum FamilyRole {
-    USER,
+    NO_FAMILY_USER,
     ADMIN,
     MEMBER,
-    VIRTUAL,
-    DOCTOR
+    VIRTUAL
 }

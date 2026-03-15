@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.HealthApp.dto.UserResponseDTO;
+import ru.HealthApp.mapper.HealthRecordMapper;
 import ru.HealthApp.repository.entities.User;
 import ru.HealthApp.service.UserService;
 import ru.HealthApp.service.validators.AccessGuard;
@@ -19,16 +21,16 @@ public class UserController {
 
     private final UserService userService;
     private final AccessGuard accessGuard;
-
+    private final HealthRecordMapper mapper;
 
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@Valid @RequestBody RegisterUserRequest request) {
+    public ResponseEntity<UserResponseDTO> registerUser(@Valid @RequestBody RegisterUserRequest request) {
 
         if (userService.existsByEmail(request.email())) {
             return ResponseEntity.badRequest().build();
         }
 
-        User user = userService.createUser(
+        UserResponseDTO user = userService.createUser(
                 request.email(),
                 request.password(),
                 request.firstName()
@@ -36,15 +38,17 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    //registerDoctor
+
     @GetMapping("/{targetUserId}")
-    public ResponseEntity<User> getUser(@PathVariable Long targetUserId, @RequestParam Long readerUserId) {
+    public ResponseEntity<UserResponseDTO> getUser(@PathVariable Long targetUserId, @RequestParam Long readerUserId) {
 
         User readerUser = userService.findById(readerUserId);
         User targetUser = userService.findById(targetUserId);
         
         accessGuard.checkReadAccess(readerUser, targetUser);
         
-        return ResponseEntity.ok(targetUser);
+        return ResponseEntity.ok(mapper.toResponse(targetUser));
     }
 
 

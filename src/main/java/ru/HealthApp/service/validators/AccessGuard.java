@@ -2,6 +2,7 @@ package ru.HealthApp.service.validators;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.HealthApp.repository.entities.Doctor;
 import ru.HealthApp.repository.entities.User;
 import ru.HealthApp.service.exceptions.AccessDeniedException;
 import ru.HealthApp.service.exceptions.ExceptionMessage;
@@ -23,6 +24,12 @@ public class AccessGuard {
         }
     }
 
+    public void checkDoctorAccess(Doctor reader, User target) {
+        if (canBeReadByDoctor(reader, target)) {
+            throw new AccessDeniedException(ExceptionMessage.READ_EXCEPTION.getMessage());
+        }
+    }
+
     public void checkWriteAccess(User writer, User target) {
         if (!canBeWrittenBy(target, writer)) {
             throw new AccessDeniedException(ExceptionMessage.WRITE_EXCEPTION.getMessage());
@@ -39,14 +46,17 @@ public class AccessGuard {
         }
     }
 
+    private boolean canBeReadByDoctor(Doctor reader, User target) {
+        if (target.isNoFamily()) {
+            return false;
+        }
+
+        return target.isDoctorOfUserFamily(reader);
+    }
 
     private boolean canBeReadBy(User target, User reader) {
 
         if (reader.getId().equals(target.getId())) {
-            return true;
-        }
-
-        if (reader.isDoctor() && target.isDoctorOfUserFamily(reader)) {
             return true;
         }
 

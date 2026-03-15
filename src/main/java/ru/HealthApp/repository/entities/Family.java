@@ -30,10 +30,23 @@ public class Family {
             joinColumns = @JoinColumn(name = "family_id"),
             inverseJoinColumns = @JoinColumn(name = "doctor_id")
     )
-    private List<User> doctors = new ArrayList<>();
+    private List<Doctor> doctors = new ArrayList<>();
 
-    public boolean isFamilyDoctor(User doctor) {
+    public boolean isFamilyDoctor(Doctor doctor) {
         return doctors.contains(doctor);
+    }
+
+    //add Doctor
+
+    /**
+     * Семья добавляет доктора - доктору приходит уведомление.
+     * В семью добавляется доктор, у доктора после уведомления срабатывает его метод аддФэмили
+     *
+     */
+    public void addDoctor(Doctor doctor) {
+        if (!doctors.contains(doctor)) {
+            doctors.add(doctor);
+        }
     }
 
     public void addUser(User user) {
@@ -62,7 +75,7 @@ public class Family {
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;
         Family family = (Family) object;
-        return id == family.id && Objects.equals(name, family.name) && Objects.equals(users, family.users);
+        return id == family.id && Objects.equals(name, family.name);
     }
 
     @Override

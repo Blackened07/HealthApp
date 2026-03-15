@@ -1,17 +1,13 @@
 package ru.HealthApp.repository.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -39,6 +35,7 @@ public class User {
 
     @ManyToOne
     @JoinColumn(name = "family_id")
+    @JsonIgnore
     private Family family;
 
     @Column(nullable = false)
@@ -50,10 +47,6 @@ public class User {
 
     public boolean isAdmin() {
         return familyRole == FamilyRole.ADMIN;
-    }
-
-    public boolean isDoctor() {
-        return familyRole == FamilyRole.DOCTOR;
     }
 
     public boolean isVirtual() {
@@ -68,7 +61,7 @@ public class User {
         return family == null;
     }
 
-    public boolean isDoctorOfUserFamily(User doctor) {
+    public boolean isDoctorOfUserFamily(Doctor doctor) {
 
         if (isNoFamily()) {
             return false;
@@ -81,7 +74,7 @@ public class User {
 
         if (object == null || getClass() != object.getClass()) return false;
         User user = (User) object;
-        return Objects.equals(id, user.id) && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(firstName, user.firstName) && familyRole == user.familyRole && Objects.equals(family, user.family) && Objects.equals(lastActivity, user.lastActivity);
+        return Objects.equals(id, user.id) && Objects.equals(email, user.email) && Objects.equals(password, user.password) && Objects.equals(firstName, user.firstName) && familyRole == user.familyRole && Objects.equals(lastActivity, user.lastActivity);
     }
 
     @Override

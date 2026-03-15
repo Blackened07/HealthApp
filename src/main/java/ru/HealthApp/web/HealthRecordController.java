@@ -30,7 +30,7 @@ public class HealthRecordController {
             @AuthenticationPrincipal UserPrincipal author,
             @PathVariable Long targetId
     ) {
-       ;
+
         Long authorId = author.userId();
         HealthRecordResponseDTO response = healthRecordService.createRecord(authorId, targetId, recordRequestDTO);
 

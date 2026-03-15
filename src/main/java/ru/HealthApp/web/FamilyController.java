@@ -3,6 +3,8 @@ package ru.HealthApp.web;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.HealthApp.dto.FamilyResponseDTO;
+import ru.HealthApp.dto.UserResponseDTO;
 import ru.HealthApp.repository.entities.Family;
 import ru.HealthApp.repository.entities.FamilyRole;
 import ru.HealthApp.repository.entities.User;
@@ -24,13 +26,13 @@ public class FamilyController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<String> createFamily(@RequestBody CreateFamilyRequest request) {
-        Family family = familyService.createFamily(
+    public ResponseEntity<FamilyResponseDTO> createFamily(@RequestBody CreateFamilyRequest request) {
+        FamilyResponseDTO family = familyService.createFamily(
                 request.userId(),
                 request.secondMemberEmail,
                 request.familyName()
         );
-        return ResponseEntity.ok("FAMILY RESPONSE DTO");
+        return ResponseEntity.ok(family);
     }
 
     @PostMapping("/{familyId}/invite")
@@ -48,7 +50,7 @@ public class FamilyController {
     }
 
     @PostMapping("/{familyId}/virtual-members")
-    public ResponseEntity<User> createVirtualMember(
+    public ResponseEntity<UserResponseDTO> createVirtualMember(
             @PathVariable Long familyId,
             @RequestBody CreateVirtualMemberRequest request,
             @RequestParam Long adminId) {
@@ -57,25 +59,24 @@ public class FamilyController {
 
         accessGuard.checkManageAccess(admin);
         
-        User virtualMember = familyService.createVirtualMember(
+        UserResponseDTO virtualMember = familyService.createVirtualMember(
                 familyId,
-                request.firstName(),
-                request.role()
+                request.firstName()
         );
         
         return ResponseEntity.ok(virtualMember);
     }
 
     @GetMapping("/{familyId}/members")
-    public ResponseEntity<List<User>> getFamilyMembers(
+    public ResponseEntity<List<UserResponseDTO>> getFamilyMembers(
             @PathVariable Long familyId,
-            @RequestParam Long currentUserId) {
+            @RequestParam Long adminId) {
         
-        User admin = userService.findById(currentUserId);
+        User admin = userService.findById(adminId);
         
         accessGuard.checkFamilyDashboardAccess(admin);
         
-        List<User> members = familyService.getFamilyMembers(familyId);
+        List<UserResponseDTO> members = familyService.getFamilyMembers(familyId);
         return ResponseEntity.ok(members);
     }
 
@@ -120,9 +121,9 @@ public class FamilyController {
     public record CreateVirtualMemberRequest(
             @NotBlank(message = "Имя не может быть пустым")
             @Size(min = 2, max = 50, message = "Имя должно быть от 2 до 50 символов")
-            String firstName,
-            
+            String firstName
+            /*
             @NotNull(message = "Роль обязательна")
-            FamilyRole role
+            FamilyRole role*/
     ) {}
 }

@@ -2,6 +2,8 @@ package ru.HealthApp.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.HealthApp.dto.UserResponseDTO;
+import ru.HealthApp.mapper.HealthRecordMapper;
 import ru.HealthApp.repository.UserRepository;
 import ru.HealthApp.repository.entities.FamilyRole;
 import ru.HealthApp.repository.entities.User;
@@ -15,6 +17,7 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final HealthRecordMapper mapper;
 
     public User findById(Long userId) {
         return userRepository.findById(userId)
@@ -34,13 +37,15 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public User createUser(String email, String password, String firstName) {
+    public UserResponseDTO createUser(String email, String password, String firstName) {
         User user = new User();
         user.setEmail(email);
         user.setPassword(PasswordUtil.encode(password));
         user.setFirstName(firstName);
         user.setLastActivity(java.time.LocalDateTime.now());
         
-        return userRepository.save(user);
+        User savedUSer = userRepository.save(user);
+
+        return mapper.toResponse(savedUSer);
     }
 }

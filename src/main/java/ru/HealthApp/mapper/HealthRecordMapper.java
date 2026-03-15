@@ -1,8 +1,11 @@
 package ru.HealthApp.mapper;
 
 import org.springframework.stereotype.Component;
+import ru.HealthApp.dto.FamilyResponseDTO;
 import ru.HealthApp.dto.HealthRecordRequestDTO;
 import ru.HealthApp.dto.HealthRecordResponseDTO;
+import ru.HealthApp.dto.UserResponseDTO;
+import ru.HealthApp.repository.entities.Family;
 import ru.HealthApp.repository.entities.HealthRecord;
 import ru.HealthApp.repository.entities.User;
 
@@ -38,4 +41,25 @@ public class HealthRecordMapper {
                 record.getUserName()
         );
     }
+
+    public UserResponseDTO toResponse(User user) {
+
+        return new UserResponseDTO(
+                user.getId(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getFamilyRole(),
+                user.getLastActivity()
+        );
+    }
+
+    public FamilyResponseDTO toResponse(Family family) {
+
+        return new FamilyResponseDTO(
+                family.getId(),
+                family.getName()
+        );
+    }
+
+
 }

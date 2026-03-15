@@ -1,8 +1,12 @@
 package ru.HealthApp.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.webmvc.autoconfigure.WebMvcProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.HealthApp.dto.FamilyResponseDTO;
+import ru.HealthApp.dto.UserResponseDTO;
+import ru.HealthApp.mapper.HealthRecordMapper;
 import ru.HealthApp.repository.FamilyRepository;
 import ru.HealthApp.repository.UserRepository;
 import ru.HealthApp.repository.entities.Family;
@@ -10,6 +14,7 @@ import ru.HealthApp.repository.entities.FamilyRole;
 import ru.HealthApp.repository.entities.User;
 import ru.HealthApp.service.exceptions.ExceptionMessage;
 import ru.HealthApp.service.exceptions.ResourceNotFoundException;
+import ru.HealthApp.service.validators.AccessGuard;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,10 +28,12 @@ public class FamilyService {
     private final FamilyRepository familyRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final AccessGuard accessGuard;
+    private final HealthRecordMapper mapper;
 
 
     @Transactional
-    public Family createFamily(Long userId, String secondMemberEmail, String familyName) {
+    public FamilyResponseDTO createFamily(Long userId, String secondMemberEmail, String familyName) {
 
         User admin = userService.findById(userId);
         Optional<User> user = userRepository.findByEmail(secondMemberEmail);
@@ -60,7 +67,7 @@ public class FamilyService {
         userRepository.save(member);
         familyRepository.save(family);
 
-        return family;
+        return mapper.toResponse(family);
     }
 
     @Transactional
@@ -81,11 +88,13 @@ public class FamilyService {
     }
 
     @Transactional
-    public User createVirtualMember(Long familyId, String firstName, FamilyRole role) {
+    public UserResponseDTO createVirtualMember(Long familyId, String firstName) {
 
         Family family = findFamilyById(familyId);
 
         User admin = family.findAdmin();
+
+        accessGuard.checkManageAccess(admin);
 
         User virtualMember = new User();
         virtualMember.setEmail(admin.getEmail() + "_virtual_" + UUID.randomUUID().toString().substring(0, 8));
@@ -95,11 +104,18 @@ public class FamilyService {
         virtualMember.setFamily(family);
         virtualMember.setLastActivity(LocalDateTime.now());
 
-        return userRepository.save(virtualMember);
+        User savedVirtualUser = userRepository.save(virtualMember);
+
+        return mapper.toResponse(savedVirtualUser);
     }
 
-    public List<User> getFamilyMembers(Long familyId) {
-        return userRepository.findByFamilyId(familyId);
+    public List<UserResponseDTO> getFamilyMembers(Long familyId) {
+
+        List<User> users = userRepository.findByFamilyId(familyId);
+
+        return users.stream()
+                .map(mapper::toResponse)
+                .toList();
     }
 
     @Transactional

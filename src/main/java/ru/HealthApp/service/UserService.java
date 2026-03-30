@@ -5,12 +5,10 @@ import org.springframework.stereotype.Service;
 import ru.HealthApp.dto.UserResponseDTO;
 import ru.HealthApp.mapper.HealthRecordMapper;
 import ru.HealthApp.repository.UserRepository;
-import ru.HealthApp.repository.entities.FamilyRole;
 import ru.HealthApp.repository.entities.User;
 import ru.HealthApp.service.exceptions.ResourceNotFoundException;
 import ru.HealthApp.utils.PasswordUtil;
 
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,19 +20,6 @@ public class UserService {
     public User findById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> ResourceNotFoundException.userNotFound(userId));
-    }
-
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
-    }
-
-    public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
-    }
-
-    public Optional<User> findByEmailOptional(String email) {
-        return userRepository.findByEmail(email);
     }
 
     public UserResponseDTO createUser(String email, String password, String firstName) {

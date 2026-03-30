@@ -46,6 +46,7 @@ public class Family {
     public void addDoctor(Doctor doctor) {
         if (!doctors.contains(doctor)) {
             doctors.add(doctor);
+            doctor.setFamily(this);
         }
     }
 

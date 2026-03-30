@@ -7,12 +7,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.HealthApp.dto.FamilyResponseDTO;
 import ru.HealthApp.dto.UserResponseDTO;
 import ru.HealthApp.mapper.HealthRecordMapper;
+import ru.HealthApp.repository.AccountRepository;
 import ru.HealthApp.repository.FamilyRepository;
 import ru.HealthApp.repository.UserRepository;
-import ru.HealthApp.repository.entities.Family;
-import ru.HealthApp.repository.entities.FamilyRole;
-import ru.HealthApp.repository.entities.User;
+import ru.HealthApp.repository.entities.*;
 import ru.HealthApp.service.exceptions.ExceptionMessage;
+import ru.HealthApp.service.exceptions.IllegalActionException;
 import ru.HealthApp.service.exceptions.ResourceNotFoundException;
 import ru.HealthApp.service.validators.AccessGuard;
 
@@ -24,9 +24,10 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class FamilyService {
-
+    private final AccountRepository accountRepository;
     private final FamilyRepository familyRepository;
     private final UserRepository userRepository;
+    private final AccountService accountService;
     private final UserService userService;
     private final AccessGuard accessGuard;
     private final HealthRecordMapper mapper;
@@ -36,14 +37,8 @@ public class FamilyService {
     public FamilyResponseDTO createFamily(Long userId, String secondMemberEmail, String familyName) {
 
         User admin = userService.findById(userId);
-        Optional<User> user = userRepository.findByEmail(secondMemberEmail);
-        User member;
-
-        if (user.isEmpty()) {
-            throw new IllegalArgumentException("пользователя с таким адресом не существует!");
-        } else {
-            member = user.get();
-        }
+        Optional<Account> unknownAccount = accountRepository.findByEmail(secondMemberEmail);
+        User member = getUserOrElseThrow(unknownAccount);
 
         if (!member.isNoFamily()) {
             throw new IllegalArgumentException(ExceptionMessage.USER_ALREADY_IN_FAMILY.getMessage());
@@ -70,22 +65,53 @@ public class FamilyService {
         return mapper.toResponse(family);
     }
 
+    private User getUserOrElseThrow(Optional<Account> unknownAccount) {
+
+        if (unknownAccount.isEmpty()) {
+            throw new IllegalArgumentException("пользователя с таким адресом не существует!");
+        } else {
+            Account account = unknownAccount.get();
+
+            switch (account) {
+                case User user -> {
+                    return user;
+                }
+                case Doctor doctor -> {
+                    throw new IllegalActionException("Доктор не может создать семью");
+                }
+            }
+
+        }
+    }
+
     @Transactional
-    public void inviteToFamily(Long familyId, String email, FamilyRole role) {
+    public void inviteToFamily(Long familyId, String email) {
         Family family = findFamilyById(familyId);
 
-        User user = userService.findByEmail(email);
+        Account user = accountService.findByEmail(email);
 
-        if (user.getFamily() != null) {
-            throw new IllegalArgumentException("Пользователь уже состоит в семье");
+        switch (user) {
+            case User u -> {
+                if (u.getFamily() != null) {
+                    throw new IllegalArgumentException("Пользователь уже состоит в семье");
+                }
+
+                family.addUser(u);
+                u.setFamilyRole(FamilyRole.MEMBER);
+                userRepository.save(u);
+            }
+            case Doctor d -> {
+                if (!family.isFamilyDoctor(d)) {
+                    family.addDoctor(d);
+                } else {
+                    throw new IllegalArgumentException("Доктор уже курирует вашу семью");
+                }
+            }
         }
-
-        family.addUser(user);
-        user.setFamilyRole(role);
-        userRepository.save(user);
-
         // TODO: Отправить уведомление пользователю
     }
+
+
 
     @Transactional
     public UserResponseDTO createVirtualMember(Long familyId, String firstName) {
@@ -110,12 +136,7 @@ public class FamilyService {
     }
 
     public List<UserResponseDTO> getFamilyMembers(Long familyId) {
-
-        List<User> users = userRepository.findByFamilyId(familyId);
-
-        return users.stream()
-                .map(mapper::toResponse)
-                .toList();
+        return null;
     }
 
     @Transactional

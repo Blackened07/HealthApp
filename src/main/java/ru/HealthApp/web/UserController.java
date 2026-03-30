@@ -6,11 +6,15 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.HealthApp.dto.UserResponseDTO;
 import ru.HealthApp.mapper.HealthRecordMapper;
+import ru.HealthApp.repository.entities.Account;
 import ru.HealthApp.repository.entities.User;
+import ru.HealthApp.service.AccountService;
+import ru.HealthApp.service.DoctorService;
 import ru.HealthApp.service.UserService;
 import ru.HealthApp.service.validators.AccessGuard;
 
@@ -20,25 +24,9 @@ import ru.HealthApp.service.validators.AccessGuard;
 public class UserController {
 
     private final UserService userService;
+    private final AccountService accountService;
     private final AccessGuard accessGuard;
     private final HealthRecordMapper mapper;
-
-    @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> registerUser(@Valid @RequestBody RegisterUserRequest request) {
-
-        if (userService.existsByEmail(request.email())) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        UserResponseDTO user = userService.createUser(
-                request.email(),
-                request.password(),
-                request.firstName()
-        );
-        return ResponseEntity.ok(user);
-    }
-
-    //registerDoctor
 
     @GetMapping("/{targetUserId}")
     public ResponseEntity<UserResponseDTO> getUser(@PathVariable Long targetUserId, @RequestParam Long readerUserId) {
@@ -54,26 +42,9 @@ public class UserController {
 
     @GetMapping("/check-email")
     public ResponseEntity<EmailCheckResponse> checkEmail(@RequestParam String email) {
-        boolean available = !userService.existsByEmail(email);
+        boolean available = !accountService.existsByEmail(email);
         return ResponseEntity.ok(new EmailCheckResponse(available));
     }
-
-    // DTO классы для запросов
-    public record RegisterUserRequest(
-            @NotBlank(message = "Email не может быть пустым")
-            @Email(message = "Некорректный формат email")
-            String email,
-
-            @NotBlank(message = "Пароль не может быть пустым")
-            @Size(min = 6, message = "Пароль должен содержать минимум 6 символов")
-            @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*#?&]{6,}$",
-                    message = "Пароль должен содержать буквы и цифры")
-            String password,
-
-            @NotBlank(message = "Имя не может быть пустым")
-            @Size(min = 2, max = 20, message = "Им должно быть от 2 до 20 символов")
-            String firstName
-    ) {}
 
     public record EmailCheckResponse(
             boolean available

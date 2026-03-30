@@ -7,7 +7,6 @@ import ru.HealthApp.dto.HealthRecordRequestDTO;
 import ru.HealthApp.dto.HealthRecordResponseDTO;
 import ru.HealthApp.mapper.HealthRecordMapper;
 import ru.HealthApp.repository.HealthRecordRepository;
-import ru.HealthApp.repository.UserRepository;
 import ru.HealthApp.repository.entities.Family;
 import ru.HealthApp.repository.entities.HealthMetricType;
 import ru.HealthApp.repository.entities.HealthRecord;
@@ -28,7 +27,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class HealthRecordService {
 
-    private final UserRepository userRepository;
     private final HealthRecordRepository healthRecordRepository;
 
     private final UserService userService;

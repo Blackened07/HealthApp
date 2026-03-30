@@ -10,5 +10,5 @@ public record UserResponseDTO(
         String firstName,
         FamilyRole familyRole,
         LocalDateTime lastActivity
-) {
+) implements AccountResponseDTO{
 }

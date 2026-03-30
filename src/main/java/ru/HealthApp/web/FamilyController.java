@@ -5,8 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.HealthApp.dto.FamilyResponseDTO;
 import ru.HealthApp.dto.UserResponseDTO;
-import ru.HealthApp.repository.entities.Family;
-import ru.HealthApp.repository.entities.FamilyRole;
 import ru.HealthApp.repository.entities.User;
 import ru.HealthApp.service.FamilyService;
 import jakarta.validation.constraints.*;
@@ -45,9 +43,11 @@ public class FamilyController {
 
         accessGuard.checkManageAccess(admin);
         
-        familyService.inviteToFamily(familyId, request.email(), request.role());
+        familyService.inviteToFamily(familyId, request.email());
         return ResponseEntity.ok().build();
     }
+
+    //invite doctor to family
 
     @PostMapping("/{familyId}/virtual-members")
     public ResponseEntity<UserResponseDTO> createVirtualMember(
@@ -112,10 +112,10 @@ public class FamilyController {
     public record InviteMemberRequest(
             @NotBlank(message = "Email не может быть пустым")
             @Email(message = "Некорректный формат email")
-            String email,
+            String email
             
-            @NotNull(message = "Роль обязательна")
-            FamilyRole role
+           /* @NotNull(message = "Роль обязательна")
+            FamilyRole role*/
     ) {}
 
     public record CreateVirtualMemberRequest(

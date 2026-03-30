@@ -14,7 +14,8 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
-public class User extends Account{
+@DiscriminatorValue("DOCTOR")
+public final class User extends Account{
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -45,6 +46,7 @@ public class User extends Account{
     }
 
     public boolean isNoFamily() {
+
         return family == null;
     }
 
@@ -54,6 +56,11 @@ public class User extends Account{
             return false;
         }
         return family.isFamilyDoctor(doctor);
+    }
+
+    @Override
+    public SystemRole getRole() {
+        return SystemRole.USER;
     }
 
     @Override

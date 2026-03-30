@@ -13,7 +13,8 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Doctor extends Account {
+@DiscriminatorValue("DOCTOR")
+public final class Doctor extends Account {
     // Специальные поля типа специализация, лицензия и тд
 
     @ManyToMany(mappedBy = "doctors")
@@ -25,4 +26,8 @@ public class Doctor extends Account {
         }
     }
 
+    @Override
+    public SystemRole getRole() {
+        return SystemRole.DOCTOR;
+    }
 }

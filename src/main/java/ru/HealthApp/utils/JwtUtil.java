@@ -21,14 +21,14 @@ public final class JwtUtil {
     private JwtUtil() {
     }
 
-    public static String generateToken(String email, Long userId, FamilyRole familyRole) {
+    public static String generateToken(String email, Long userId) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
 
         return Jwts.builder()
                 .setSubject(email)
                 .claim("userId", userId)
-                .claim("ROLE", familyRole)
+                // create claim with ClassName?
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -45,10 +45,6 @@ public final class JwtUtil {
         return extractClaims(token).get("userId", Long.class);
     }
 
-    public static String extractUserRole(String token) {
-
-        return extractClaims(token).get("ROLE", String.class);
-    }
 
     public static boolean validateToken(String token, String email) {
 

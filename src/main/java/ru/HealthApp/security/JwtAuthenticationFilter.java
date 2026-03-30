@@ -26,19 +26,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7); // Удаляем "Bearer "
+            String token = authHeader.substring(7);
 
             try {
                 String userEmail = JwtUtil.extractEmail(token);
                 Long userId = JwtUtil.extractUserId(token);
-                String role = JwtUtil.extractUserRole(token);
 
                 if (userEmail != null && JwtUtil.validateToken(token, userEmail)) {
-                    System.out.println("== START CREATING UsernamePasswordAuthenticationToken");
-                    UsernamePasswordAuthenticationToken authToken = createAuthToken(userEmail, userId, role, request);
+                    UsernamePasswordAuthenticationToken authToken = createAuthToken(userEmail, userId, request);
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 } else {
-                    System.out.println("PIZDEC, BURN IN HELL");
+                    System.out.println("BURN IN HELL");
                 }
 
             } catch (Exception e) {
@@ -48,10 +46,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private UsernamePasswordAuthenticationToken createAuthToken(String userEmail, long userId, String role, HttpServletRequest request) {
+    private UsernamePasswordAuthenticationToken createAuthToken(String userEmail, long userId, HttpServletRequest request) {
 
         List<SimpleGrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority("ROLE_" + role)
+                new SimpleGrantedAuthority("ROLE_")
         );
 
 

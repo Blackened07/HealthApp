@@ -5,7 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
-import ru.HealthApp.repository.entities.FamilyRole;
+import ru.HealthApp.repository.entities.Account;
 
 import java.security.Key;
 import java.util.Date;
@@ -21,13 +21,14 @@ public final class JwtUtil {
     private JwtUtil() {
     }
 
-    public static String generateToken(String email, Long userId) {
+    public static String generateToken(String email, Long userId, Account.SystemRole role) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
 
         return Jwts.builder()
                 .setSubject(email)
                 .claim("userId", userId)
+                .claim("ROLE_", role)
                 // create claim with ClassName?
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
@@ -43,6 +44,11 @@ public final class JwtUtil {
     public static Long extractUserId(String token) {
 
         return extractClaims(token).get("userId", Long.class);
+    }
+
+    public static String extractRole(String token) {
+
+        return extractClaims(token).get("ROLE_", String.class);
     }
 
 

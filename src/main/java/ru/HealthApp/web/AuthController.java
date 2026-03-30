@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.HealthApp.dto.AccountResponseDTO;
 import ru.HealthApp.dto.UserResponseDTO;
 import ru.HealthApp.repository.entities.Account;
+import ru.HealthApp.repository.entities.Doctor;
+import ru.HealthApp.repository.entities.User;
 import ru.HealthApp.service.AccountService;
 import ru.HealthApp.service.DoctorService;
 import ru.HealthApp.service.UserService;
@@ -62,11 +64,19 @@ public class AuthController {
                         .body(new AuthResponse("Неверный email или пароль", false));
             }
 
-            //по айди получить аккаунт и проверить гет класс доктор или юзер!
+            String token;
+
+            //аккаунт проверить гет класс доктор или юзер!
+            switch (account) {
+                case User u -> {
+                    token = JwtUtil.generateToken(account.getEmail(), account.getId(), account.getRole());
+                }
+                case Doctor doctor -> {
+                    token = JwtUtil.generateToken(account.getEmail(), account.getId(), account.getRole());
+                }
+            }
 
             //Разные токены для доктора и юзера
-
-            String token = JwtUtil.generateToken(account.getEmail(), account.getId());
             
             return ResponseEntity.ok(new AuthResponse(token, true));
             

@@ -31,9 +31,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 String userEmail = JwtUtil.extractEmail(token);
                 Long userId = JwtUtil.extractUserId(token);
+                String accountRole = JwtUtil.extractRole(token);
 
                 if (userEmail != null && JwtUtil.validateToken(token, userEmail)) {
-                    UsernamePasswordAuthenticationToken authToken = createAuthToken(userEmail, userId, request);
+                    UsernamePasswordAuthenticationToken authToken = createAuthToken(userEmail, userId, accountRole, request);
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 } else {
                     System.out.println("BURN IN HELL");
@@ -46,10 +47,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private UsernamePasswordAuthenticationToken createAuthToken(String userEmail, long userId, HttpServletRequest request) {
+    private UsernamePasswordAuthenticationToken createAuthToken(String userEmail, long userId, String accountRole, HttpServletRequest request) {
 
         List<SimpleGrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority("ROLE_")
+                new SimpleGrantedAuthority(accountRole)
         );
 
 

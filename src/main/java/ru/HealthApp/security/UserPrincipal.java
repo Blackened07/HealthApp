@@ -1,6 +1,5 @@
 package ru.HealthApp.security;
 
-import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -18,8 +17,8 @@ public record UserPrincipal(
     }
 
     @Override
-    public @Nullable String getPassword() {
-        return null;
+    public String getPassword() {
+        return "";
     }
 
     @Override

@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.HealthApp.dto.AccountResponseDTO;
-import ru.HealthApp.dto.UserResponseDTO;
 import ru.HealthApp.repository.entities.Account;
-import ru.HealthApp.repository.entities.Doctor;
-import ru.HealthApp.repository.entities.User;
 import ru.HealthApp.service.AccountService;
 import ru.HealthApp.service.DoctorService;
 import ru.HealthApp.service.UserService;
@@ -49,7 +46,7 @@ public class AuthController {
                     request.firstName()
             );
         }
-
+        //created status?
         return ResponseEntity.ok(accDto);
     }
 
@@ -64,17 +61,9 @@ public class AuthController {
                         .body(new AuthResponse("Неверный email или пароль", false));
             }
 
-            String token;
-
-            //аккаунт проверить гет класс доктор или юзер!
-            switch (account) {
-                case User u -> {
-                    token = JwtUtil.generateToken(account.getEmail(), account.getId(), account.getRole());
-                }
-                case Doctor doctor -> {
-                    token = JwtUtil.generateToken(account.getEmail(), account.getId(), account.getRole());
-                }
-            }
+            /*String role = account.getRole().toString();
+            //аккаунт проверить гет класс доктор или юзер!*/
+            String token = JwtUtil.generateToken(account.getEmail(), account.getId(), account.getRole());
 
             //Разные токены для доктора и юзера
             
@@ -85,6 +74,8 @@ public class AuthController {
                     .body(new AuthResponse("Пользователь не найден", false));
         }
     }
+
+    //logout
 
     @GetMapping("/check-email")
     public ResponseEntity<EmailCheckResponse> checkEmail(@RequestParam String email) {
@@ -107,7 +98,7 @@ public class AuthController {
             @Size(min = 2, max = 20, message = "Им должно быть от 2 до 20 символов")
             String firstName,
 
-            @NotBlank(message = "Не выбрана роль в приложении")
+            @NotNull(message = "Не выбрана роль в приложении")
             Account.SystemRole systemRole
     ) {}
 

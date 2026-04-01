@@ -14,7 +14,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @NoArgsConstructor
-@DiscriminatorValue("DOCTOR")
+@DiscriminatorValue("USER")
 public final class User extends Account{
 
     @Enumerated(EnumType.STRING)

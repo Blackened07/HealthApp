@@ -1,7 +1,6 @@
 package ru.HealthApp.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.webmvc.autoconfigure.WebMvcProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.HealthApp.dto.FamilyResponseDTO;
@@ -69,19 +68,20 @@ public class FamilyService {
 
         if (unknownAccount.isEmpty()) {
             throw new IllegalArgumentException("пользователя с таким адресом не существует!");
-        } else {
-            Account account = unknownAccount.get();
-
-            switch (account) {
-                case User user -> {
-                    return user;
-                }
-                case Doctor doctor -> {
-                    throw new IllegalActionException("Доктор не может создать семью");
-                }
-            }
-
         }
+
+        Account account = unknownAccount.get();
+        String role = account.getRole().toString();
+
+        switch (role) {
+            case "USER" -> {
+                return (User) account;
+            }
+            case "DOCTOR" -> {
+                throw new IllegalActionException("Доктор не может создать семью");
+            }
+        }
+        return null;
     }
 
     @Transactional
@@ -89,9 +89,11 @@ public class FamilyService {
         Family family = findFamilyById(familyId);
 
         Account user = accountService.findByEmail(email);
+        String role = user.getRole().toString();
 
-        switch (user) {
-            case User u -> {
+        switch (role) {
+            case "USER" -> {
+                User u = (User) user;
                 if (u.getFamily() != null) {
                     throw new IllegalArgumentException("Пользователь уже состоит в семье");
                 }
@@ -100,7 +102,8 @@ public class FamilyService {
                 u.setFamilyRole(FamilyRole.MEMBER);
                 userRepository.save(u);
             }
-            case Doctor d -> {
+            case "DOCTOR" -> {
+                Doctor d = (Doctor) user;
                 if (!family.isFamilyDoctor(d)) {
                     family.addDoctor(d);
                 } else {
@@ -110,7 +113,6 @@ public class FamilyService {
         }
         // TODO: Отправить уведомление пользователю
     }
-
 
 
     @Transactional

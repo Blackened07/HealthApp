@@ -1,20 +1,13 @@
 package ru.HealthApp.web;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.HealthApp.dto.UserResponseDTO;
 import ru.HealthApp.mapper.HealthRecordMapper;
-import ru.HealthApp.repository.entities.Account;
 import ru.HealthApp.repository.entities.User;
 import ru.HealthApp.service.AccountService;
-import ru.HealthApp.service.DoctorService;
 import ru.HealthApp.service.UserService;
 import ru.HealthApp.service.validators.AccessGuard;
 
@@ -38,6 +31,13 @@ public class UserController {
         
         return ResponseEntity.ok(mapper.toResponse(targetUser));
     }
+
+
+    //getFamily - получить просто список членов семьи с именами и ролями; only for family members
+    //if ADMIN -> open FamilyManager
+
+    //записаться на приём
+    //getDoctor
 
 
     @GetMapping("/check-email")

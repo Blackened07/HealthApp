@@ -12,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "account_type", discriminatorType = DiscriminatorType.STRING)
-public sealed abstract class Account permits User, Doctor {
+public abstract class Account {
 
     public enum SystemRole { DOCTOR, USER }
 
@@ -29,5 +29,6 @@ public sealed abstract class Account permits User, Doctor {
 
     private String firstName;
 
+    @Transient
     public abstract SystemRole getRole();
 }

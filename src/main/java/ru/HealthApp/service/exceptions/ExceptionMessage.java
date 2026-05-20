@@ -27,6 +27,21 @@ public enum ExceptionMessage {
     private final String message;
 
     public static String createMessageWithArgs(ExceptionMessage message, Object... args) {
-        return String.format(message.getMessage(), args);
+
+        if(args.length == 1) {
+            return String.format(message.getMessage(), args[0]);
+        }
+
+        if(args.length == 2) {
+            return String.format(message.getMessage(), args[0], args[1]);
+        }
+
+        if(args.length == 3) {
+            return String.format(message.getMessage(), args[0], args[1], args[2]);
+        }
+
+        return message.getMessage();
     }
+
+
 }

@@ -27,6 +27,7 @@ public abstract class Account {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
     private String firstName;
 
     @Transient

@@ -3,7 +3,7 @@ package ru.HealthApp.web;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -11,9 +11,8 @@ import ru.HealthApp.dto.HealthRecordRequestDTO;
 import ru.HealthApp.dto.HealthRecordResponseDTO;
 import ru.HealthApp.security.UserPrincipal;
 import ru.HealthApp.service.HealthRecordService;
-import ru.HealthApp.service.validators.AccessGuard;
+import ru.HealthApp.service.exceptions.InvalidMetricException;
 
-import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,7 +20,7 @@ import java.util.List;
 @RequestMapping("/api/v1/health-records")
 @RequiredArgsConstructor
 public class HealthRecordController {
-
+    private GlobalExceptionHandler handler;
     private final HealthRecordService healthRecordService;
 
     @PostMapping("/{targetId}")
@@ -32,36 +31,33 @@ public class HealthRecordController {
     ) {
 
         Long authorId = author.userId();
-        HealthRecordResponseDTO response = healthRecordService.createRecord(authorId, targetId, recordRequestDTO);
+        HealthRecordResponseDTO response  = healthRecordService.createRecord(authorId, targetId, recordRequestDTO);
 
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/history/{userId}")
+    @GetMapping("/history/{targetId}")
     public ResponseEntity<List<HealthRecordResponseDTO>> getHistory(
-            @PathVariable Long userId,
+            @PathVariable Long targetId,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
-            @RequestParam Long actorId) {
-        
-        List<HealthRecordResponseDTO> history = healthRecordService.getHistory(actorId, userId, type, from, to);
-        return ResponseEntity.ok(history);
-    }
+            @AuthenticationPrincipal UserPrincipal actor) {
 
-    @GetMapping("/dashboard")
-    public ResponseEntity<List<HealthRecordResponseDTO>> getFamilyDashboard(
-            @RequestParam Long actorId) {
+        Long actorId = actor.userId();
         
-        List<HealthRecordResponseDTO> dashboard = healthRecordService.getFamilyDashboard(actorId);
-        return ResponseEntity.ok(dashboard);
+        List<HealthRecordResponseDTO> history = healthRecordService.getHistory(actorId, targetId, type, from, to);
+        
+        return ResponseEntity.ok(history);
     }
 
     @PutMapping("/{recordId}")
     public ResponseEntity<HealthRecordResponseDTO> updateRecord(
             @PathVariable Long recordId,
             @RequestBody HealthRecordRequestDTO request,
-            @RequestParam Long actorId) {
+            @AuthenticationPrincipal UserPrincipal actor) {
+
+        Long actorId = actor.userId();
         
         HealthRecordResponseDTO response = healthRecordService.updateRecord(actorId, recordId, request);
         return ResponseEntity.ok(response);
@@ -70,10 +66,22 @@ public class HealthRecordController {
     @DeleteMapping("/{recordId}")
     public ResponseEntity<Void> deleteRecord(
             @PathVariable Long recordId,
-            @RequestParam Long actorId) {
+            @AuthenticationPrincipal UserPrincipal actor) {
+
+        Long actorId = actor.userId();
         
         healthRecordService.deleteRecord(actorId, recordId);
         return ResponseEntity.noContent().build();
+    }
+
+    //TODO LOOK DOWN
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<List<HealthRecordResponseDTO>> getFamilyDashboard(
+            @RequestParam Long actorId) {
+
+        List<HealthRecordResponseDTO> dashboard = healthRecordService.getFamilyDashboard(actorId);
+        return ResponseEntity.ok(dashboard);
     }
 
     @GetMapping("/metrics")

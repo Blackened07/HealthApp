@@ -13,6 +13,9 @@ public class HealthAppApplication {
 
 	// TODO : ADD TO DOCOTOR ENTITY  // Специальные поля типа специализация, лицензия и тд
 
+
+	//TODO: Ниже описано то как можно проверять роли для методов! В принципале содержится вся инфа, Пре авторайз сверяет инфу из принципала с указанной у аннотации
+
 	/**
 	 *  @PreAuthorize("hasRole('DOCTOR')")
 	 *  @PostMapping("/prescriptions")

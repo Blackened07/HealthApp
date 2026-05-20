@@ -4,6 +4,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import ru.HealthApp.repository.entities.Account;
 
@@ -14,6 +16,8 @@ import java.util.Date;
 public final class JwtUtil {
 
     private static final String SECRET_KEY = "my-super-secret-key-for-health-app-jwt-token-generation";
+
+    //private static final String SECRET_KEY = PropertiesUtil.getProperty(PropertiesUtil.SECRET);
     private static final long EXPIRATION_TIME = 86400000; // 24 часа
 
     private static final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());

@@ -58,20 +58,16 @@ public class AuthController {
             
             if (!PasswordUtil.matches(request.password(), account.getPassword())) {
                 return ResponseEntity.badRequest()
-                        .body(new AuthResponse("Неверный email или пароль", false));
+                        .body(new AuthResponse("Неверный email или пароль", 0L, "", false));
             }
 
-            /*String role = account.getRole().toString();
-            //аккаунт проверить гет класс доктор или юзер!*/
-            String token = JwtUtil.generateToken(account.getEmail(), account.getId(), account.getRole());
+            String token = JwtUtil.generateToken( account.getEmail(), account.getId(), account.getRole());
 
-            //Разные токены для доктора и юзера
-            
-            return ResponseEntity.ok(new AuthResponse(token, true));
+            return ResponseEntity.ok(new AuthResponse(token, account.getId(), account.getFirstName(), true));
             
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
-                    .body(new AuthResponse("Пользователь не найден", false));
+                    .body(new AuthResponse("Пользователь не найден", 0L,"", false));
         }
     }
 
@@ -112,7 +108,7 @@ public class AuthController {
             String password
     ) {}
 
-    public record AuthResponse(String message, boolean success) {}
+    public record AuthResponse(String message, Long userId, String firstName, boolean success) {}
 
     public record EmailCheckResponse(boolean exists) {}
 }

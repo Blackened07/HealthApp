@@ -12,6 +12,7 @@ import ru.HealthApp.repository.entities.HealthMetricType;
 import ru.HealthApp.repository.entities.HealthRecord;
 import ru.HealthApp.repository.entities.User;
 import ru.HealthApp.service.exceptions.IllegalActionException;
+import ru.HealthApp.service.exceptions.InvalidMetricException;
 import ru.HealthApp.service.exceptions.ResourceNotFoundException;
 import ru.HealthApp.service.validators.AccessGuard;
 import ru.HealthApp.service.validators.FamilyActionGuard;
@@ -44,6 +45,7 @@ public class HealthRecordService {
         User target = userService.findById(targetId);
 
         accessGuard.checkWriteAccess(actor, target);
+
         recordValuesValidator.validate(data);
 
         HealthRecord record = mapper.toEntity(data, target);
@@ -63,7 +65,8 @@ public class HealthRecordService {
 
         List<HealthRecord> records = (type == null)
                 ? healthRecordRepository.findAllByUserAndTimestampBetween(target, from, to)
-                : healthRecordRepository.findAllByUserAndTypeOrderByTimestampDesc(target, type.toUpperCase(), from, to);
+                : healthRecordRepository.findAllByUserAndTypeAndTimestampBetweenOrderByTimestampDesc(target, type, from, to);
+
 
         return records.stream()
                 .map(mapper::toResponse)

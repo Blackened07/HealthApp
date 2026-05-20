@@ -1,6 +1,7 @@
 package ru.HealthApp.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.HealthApp.repository.entities.HealthRecord;
 import ru.HealthApp.repository.entities.User;
@@ -15,8 +16,8 @@ public interface HealthRecordRepository extends JpaRepository<HealthRecord, Long
     Optional<HealthRecord> findById(long recordID);
 
     List<HealthRecord> findAllByUserInOrderByTimestampDesc(List<User> users);
-
-    List<HealthRecord> findAllByUserAndTypeOrderByTimestampDesc(User user, String type, LocalDateTime start, LocalDateTime end);
+  
+    List<HealthRecord> findAllByUserAndTypeAndTimestampBetweenOrderByTimestampDesc(User user, String type, LocalDateTime start, LocalDateTime end);
 
     List<HealthRecord> findAllByUserAndTimestampBetween(User user, LocalDateTime start, LocalDateTime end);
 

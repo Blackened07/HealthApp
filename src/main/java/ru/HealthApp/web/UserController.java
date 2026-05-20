@@ -20,7 +20,7 @@ public class UserController {
     private final AccountService accountService;
     private final AccessGuard accessGuard;
     private final HealthRecordMapper mapper;
-
+    //TODO РИДЕР ЮЗЕР ЗАМЕНЯЕТСЯ НА ПРИНЦИПАЛА
     @GetMapping("/{targetUserId}")
     public ResponseEntity<UserResponseDTO> getUser(@PathVariable Long targetUserId, @RequestParam Long readerUserId) {
 

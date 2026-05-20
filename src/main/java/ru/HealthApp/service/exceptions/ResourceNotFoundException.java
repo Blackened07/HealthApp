@@ -10,7 +10,7 @@ public final class ResourceNotFoundException extends HealthAppException {
 
     public ResourceNotFoundException(String resourceType, Object resourceId) {
 
-        super(String.format("%s c ID %s не найден", resourceType, resourceId), false);
+        super(String.format("%s - %s не найден", resourceType, resourceId), false);
         this.resourceType = resourceType;
         this.resourceId = resourceId;
     }
@@ -29,6 +29,10 @@ public final class ResourceNotFoundException extends HealthAppException {
 
     public static ResourceNotFoundException familyNotFound(Long familyId) {
         return new ResourceNotFoundException("Семья", familyId);
+    }
+
+    public static ResourceNotFoundException invitationNotFound(String email) {
+        return new ResourceNotFoundException("Приглашение для", email);
     }
 
 }

@@ -21,7 +21,8 @@ public class AccountService {
 
     public Account findByEmail(String email) {
         return accountRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Пользователь %s не найден", email)));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        String.format("Пользователь %s не найден", email)));
     }
 
     public boolean existsByEmail(String email) {

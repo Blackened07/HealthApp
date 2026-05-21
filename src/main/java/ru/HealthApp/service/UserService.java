@@ -22,6 +22,11 @@ public class UserService {
                 .orElseThrow(() -> ResourceNotFoundException.userNotFound(userId));
     }
 
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> ResourceNotFoundException.userNotFound(email));
+    }
+
     public UserResponseDTO createUser(String email, String password, String firstName) {
         User user = new User();
         user.setEmail(email);
@@ -33,4 +38,6 @@ public class UserService {
 
         return mapper.toResponse(savedUSer);
     }
+
+
 }

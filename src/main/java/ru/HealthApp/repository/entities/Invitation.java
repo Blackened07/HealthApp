@@ -18,13 +18,13 @@ public class Invitation {
     private Long id;
 
     @Column(nullable = false)
-    private Long actorId;
+    private String actorEmail;
 
     @Column(nullable = false)
     private String secretCode;
 
     @Column(nullable = false)
-    private String invitedEmail;
+    private String invitedUserEmail;
 
     @Column
     private String familyName;

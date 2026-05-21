@@ -2,13 +2,10 @@ package ru.HealthApp.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.HealthApp.repository.AccountRepository;
-import ru.HealthApp.repository.FamilyInvitationRepository;
-import ru.HealthApp.repository.entities.Account;
+import ru.HealthApp.repository.InvitationRepository;
 import ru.HealthApp.repository.entities.Invitation;
 import ru.HealthApp.repository.entities.User;
 import ru.HealthApp.service.exceptions.ResourceNotFoundException;
-import ru.HealthApp.web.InvitationController;
 
 import java.time.LocalDateTime;
 
@@ -16,11 +13,11 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class InvitationService {
 
-    private FamilyInvitationRepository familyInvitationRepository;
-    private UserService userService;
+    private final InvitationRepository invitationRepository;
+    private final UserService userService;
 
     public Invitation findInvitationBySecretCodeAndInvitedEmail(String secretCode, String email) {
-        return familyInvitationRepository.findInvitationBySecretCodeAndInvitedEmail(secretCode, email)
+        return invitationRepository.findInvitationBySecretCodeAndInvitedUserEmail(secretCode, email)
                 .orElseThrow(() -> ResourceNotFoundException.invitationNotFound(email));
     }
 
@@ -46,8 +43,9 @@ public class InvitationService {
         inv.setFamilyName(familyName);
         inv.setCreatedAtTimestamp(creationTime);
         inv.setExpirationTimestamp(expTime);
+        inv.setStatus("PENDING");
 
-        familyInvitationRepository.save(inv);
+        invitationRepository.save(inv);
 
     }
 

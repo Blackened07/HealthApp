@@ -20,7 +20,7 @@ import java.util.List;
 @RequestMapping("/api/v1/health-records")
 @RequiredArgsConstructor
 public class HealthRecordController {
-    private GlobalExceptionHandler handler;
+
     private final HealthRecordService healthRecordService;
 
     @PostMapping("/{targetId}")

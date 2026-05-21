@@ -18,9 +18,9 @@ import ru.HealthApp.service.InvitationService;
 @RequiredArgsConstructor
 public class InvitationController {
 
-    private InvitationService invitationService;
+    private final InvitationService invitationService;
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<FamilyInvitationResponseDTO> create(
             @AuthenticationPrincipal UserPrincipal actor,
             @Valid @RequestBody  FamilyInvitationRequestDTO request) {
@@ -31,12 +31,12 @@ public class InvitationController {
         String invitedUserEmail = request.invitedUserEmail();
         String familyName = request.familyName();
 
-        if (isBothUsersFamilyMembers(actorId, invitedUserEmail)) {
+        if (!isBothUsersFamilyMembers(actorId, invitedUserEmail)) {
             return ResponseEntity.badRequest().build();
         }
 
-        String secretCode ="sdglknsldngk";
-        //get invitedUserEmail and familyName
+        String secretCode ="BURN IN HELL";
+
         invitationService.create(secretCode, invitedUserEmail, familyName, actorEmail);
 
         FamilyInvitationResponseDTO response = new FamilyInvitationResponseDTO(secretCode);

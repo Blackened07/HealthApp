@@ -11,6 +11,7 @@ import ru.HealthApp.repository.entities.Family;
 import ru.HealthApp.repository.entities.HealthMetricType;
 import ru.HealthApp.repository.entities.HealthRecord;
 import ru.HealthApp.repository.entities.User;
+import ru.HealthApp.service.exceptions.HealthAppException;
 import ru.HealthApp.service.exceptions.IllegalActionException;
 import ru.HealthApp.service.exceptions.InvalidMetricException;
 import ru.HealthApp.service.exceptions.ResourceNotFoundException;

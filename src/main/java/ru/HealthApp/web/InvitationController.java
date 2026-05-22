@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.HealthApp.dto.FamilyInvitationRequestDTO;
 import ru.HealthApp.security.UserPrincipal;
 import ru.HealthApp.service.InvitationService;
+import ru.HealthApp.service.UserService;
+import ru.HealthApp.service.exceptions.IllegalActionException;
+import ru.HealthApp.service.exceptions.ResourceNotFoundException;
 
 @RestController
 @RequestMapping("/api/v1/invitation")
@@ -19,23 +22,31 @@ import ru.HealthApp.service.InvitationService;
 public class InvitationController {
 
     private final InvitationService invitationService;
+    private final UserService userService;
 
     @PostMapping
     public ResponseEntity<FamilyInvitationResponseDTO> create(
             @AuthenticationPrincipal UserPrincipal actor,
-            @Valid @RequestBody  FamilyInvitationRequestDTO request) {
+            @Valid @RequestBody FamilyInvitationRequestDTO request) {
 
         Long actorId = actor.userId();
-        String actorEmail= actor.email();
+        String actorEmail = actor.email();
 
         String invitedUserEmail = request.invitedUserEmail();
         String familyName = request.familyName();
+
+        userService.findByEmail(invitedUserEmail);
+
+        if (invitationService.isInvitationExist(actorEmail)) {
+            throw new IllegalActionException("Вы уже отправили приглашение");
+        }
 
         if (!isBothUsersFamilyMembers(actorId, invitedUserEmail)) {
             return ResponseEntity.badRequest().build();
         }
 
-        String secretCode ="BURN IN HELL";
+
+        String secretCode = "BURN IN HELL";
 
         invitationService.create(secretCode, invitedUserEmail, familyName, actorEmail);
 
@@ -46,10 +57,10 @@ public class InvitationController {
     }
 
 
-
     public record FamilyInvitationResponseDTO(
             String secretCode
-    ){}
+    ) {
+    }
 
     private boolean isBothUsersFamilyMembers(Long actorId, String invitedUserEmail) {
         return invitationService.isUserFamilyMember(actorId) || invitationService.isUserFamilyMember(invitedUserEmail);

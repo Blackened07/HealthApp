@@ -21,6 +21,10 @@ public class InvitationService {
                 .orElseThrow(() -> ResourceNotFoundException.invitationNotFound(email));
     }
 
+    public boolean isInvitationExist(String actorEmail) {
+        return invitationRepository.existsByActorEmail(actorEmail);
+    }
+
     public boolean isUserFamilyMember(Long userId) {
         User actor = userService.findById(userId);
         return actor.isNoFamily();

@@ -12,4 +12,6 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
      */
     Optional<Invitation> findInvitationBySecretCodeAndInvitedUserEmail(String secretCode, String email);
 
+    boolean existsByActorEmail(String actorEmail);
+
 }

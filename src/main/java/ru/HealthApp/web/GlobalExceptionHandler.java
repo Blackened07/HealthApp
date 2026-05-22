@@ -14,13 +14,20 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(HealthAppException.class)
+    @ExceptionHandler({
+            AccessDeniedException.class,
+            ResourceNotFoundException.class,
+            InvalidMetricException.class,
+            IllegalActionException.class
+    })
     public ResponseEntity<ErrorResponse> handleHealthAppException(HealthAppException ex) {
-        HttpStatus status = ex instanceof AccessDeniedException ? HttpStatus.FORBIDDEN :
-                       ex instanceof ResourceNotFoundException ? HttpStatus.NOT_FOUND :
-                       ex instanceof InvalidMetricException ? HttpStatus.BAD_REQUEST :
-                       ex instanceof IllegalActionException ? HttpStatus.BAD_REQUEST :
-                       HttpStatus.INTERNAL_SERVER_ERROR;
+
+        HttpStatus status = switch (ex) {
+            case AccessDeniedException ignored -> HttpStatus.FORBIDDEN;
+            case ResourceNotFoundException ignored -> HttpStatus.NOT_FOUND;
+            case InvalidMetricException ignored -> HttpStatus.BAD_REQUEST;
+            case IllegalActionException ignored -> HttpStatus.BAD_REQUEST;
+        };
 
         ErrorResponse response = new ErrorResponse(
                 LocalDateTime.now(),

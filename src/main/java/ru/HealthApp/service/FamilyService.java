@@ -33,11 +33,14 @@ public class FamilyService {
 
 
     @Transactional
-    public FamilyResponseDTO createFamily(Long userId, String secondMemberEmail, String familyName) {
+    public FamilyResponseDTO createFamily(String adminEmail, String secondMemberEmail, String familyName) {
 
-        User admin = userService.findById(userId);
-        Optional<Account> unknownAccount = accountRepository.findByEmail(secondMemberEmail);
-        User member = getUserOrElseThrow(unknownAccount);
+        User admin = userService.findByEmail(adminEmail);
+        User member = userService.findByEmail(secondMemberEmail);
+
+        if (admin.getRole() != Account.SystemRole.USER && member.getRole() != Account.SystemRole.USER) {
+            throw new IllegalArgumentException();
+        }
 
         if (!member.isNoFamily()) {
             throw new IllegalArgumentException(ExceptionMessage.USER_ALREADY_IN_FAMILY.getMessage());
@@ -61,8 +64,15 @@ public class FamilyService {
         userRepository.save(member);
         familyRepository.save(family);
 
-        return mapper.toResponse(family);
+        return mapper.toResponse(family, member.getFamilyRole().name());
     }
+
+    public Family findByUserId(Long userId) {
+        return familyRepository.findByUsersId(userId)
+                .orElseThrow(ResourceNotFoundException::usersFamilyNotFound);
+    }
+
+
 
     private User getUserOrElseThrow(Optional<Account> unknownAccount) {
 
@@ -94,7 +104,7 @@ public class FamilyService {
         switch (role) {
             case "USER" -> {
                 User u = (User) user;
-                if (u.getFamily() != null) {
+                if (!u.isNoFamily()) {
                     throw new IllegalArgumentException("Пользователь уже состоит в семье");
                 }
 
@@ -137,8 +147,18 @@ public class FamilyService {
         return mapper.toResponse(savedVirtualUser);
     }
 
-    public List<UserResponseDTO> getFamilyMembers(Long familyId) {
-        return null;
+    public List<UserResponseDTO> getFamilyMembers(Long familyId, User user) {
+
+        accessGuard.checkReadAccess(user, user);
+
+        Family family =  familyRepository.findById(familyId)
+                .orElseThrow(() -> ResourceNotFoundException.familyNotFound(familyId));
+
+        return family.getUsers()
+                .stream()
+                .map(mapper::toResponse)
+                .toList();
+
     }
 
     @Transactional

@@ -36,9 +36,9 @@ public class AccessGuard {
     }
 
     public void checkFamilyDashboardAccess(User actor) {
-        if (!canManageFamily(actor)) {
+        /*if (!canManageFamily(actor)) {
             throw new AccessDeniedException(ExceptionMessage.NOT_ADMIN_EXCEPTION.getMessage());
-        }
+        }*/
 
         if (actor.isNoFamily()) {
             throw new AccessDeniedException(ExceptionMessage.NO_FAMILY_EXCEPTION.getMessage());
@@ -72,7 +72,11 @@ public class AccessGuard {
             return true;
         }
 
-        if (target.isVirtual() && writer.isAdmin() && writer.getFamily().equals(target.getFamily())) {
+        if (writer.getFamily().equals(target.getFamily())) {
+            return true;
+        }
+
+        if (target.isVirtual() && writer.isAdmin()) {
             return true;
         }
 

@@ -4,6 +4,7 @@ package ru.HealthApp.web;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,26 +42,24 @@ public class InvitationController {
             throw new IllegalActionException("Вы уже отправили приглашение");
         }
 
+        //если актор может отправить приглашение, но юзер уже приглашёл!
+
         if (!isBothUsersFamilyMembers(actorId, invitedUserEmail)) {
             return ResponseEntity.badRequest().build();
         }
 
-
-        String secretCode = "BURN IN HELL";
+        String secretCode = invitationService.generateSecretCode();
 
         invitationService.create(secretCode, invitedUserEmail, familyName, actorEmail);
 
         FamilyInvitationResponseDTO response = new FamilyInvitationResponseDTO(secretCode);
 
         return ResponseEntity.ok(response);
-
     }
-
 
     public record FamilyInvitationResponseDTO(
             String secretCode
-    ) {
-    }
+    ) {}
 
     private boolean isBothUsersFamilyMembers(Long actorId, String invitedUserEmail) {
         return invitationService.isUserFamilyMember(actorId) || invitationService.isUserFamilyMember(invitedUserEmail);

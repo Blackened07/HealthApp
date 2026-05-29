@@ -7,13 +7,22 @@ import ru.HealthApp.repository.entities.Family;
 import ru.HealthApp.repository.entities.HealthRecord;
 import ru.HealthApp.repository.entities.User;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+
 @Component
 public class HealthRecordMapper {
 
     public HealthRecord toEntity(HealthRecordRequestDTO data, User target) {
 
         HealthRecord record = new HealthRecord();
+
+        int deviceOffset = data.OFFSET_ZONE();
+        long createdAt = data.TIMESTAMP();
+
+        ZoneOffset offsetInSeconds =  ZoneOffset.ofTotalSeconds(deviceOffset / 1000);
+        Instant instant = Instant.ofEpochMilli(createdAt);
 
         record.setType(data.type());
         record.setValue1(data.value1());
@@ -22,7 +31,7 @@ public class HealthRecordMapper {
 
         record.setUser(target);
         record.setHealthMetricType(record.getMetricType());
-        record.setTimestamp(LocalDateTime.now());
+        record.setTimestamp(LocalDateTime.ofInstant(instant, offsetInSeconds));
 
         return record;
     }
@@ -51,11 +60,13 @@ public class HealthRecordMapper {
         );
     }
 
-    public FamilyResponseDTO toResponse(Family family) {
+    public FamilyResponseDTO toResponse(Family family, String familyRole) {
 
         return new FamilyResponseDTO(
+                true,
                 family.getId(),
-                family.getName()
+                family.getName(),
+                familyRole
         );
     }
 

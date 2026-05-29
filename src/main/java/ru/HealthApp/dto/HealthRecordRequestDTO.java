@@ -2,6 +2,7 @@ package ru.HealthApp.dto;
 
 import jakarta.validation.constraints.*;
 
+
 public record HealthRecordRequestDTO(
         @NotBlank(message = "Тип метрики обязателен")
         @Pattern(regexp = "^(BLOOD_PRESSURE|GLUCOSE|TEMPERATURE|WEIGHT|CUSTOM)$", 
@@ -18,5 +19,9 @@ public record HealthRecordRequestDTO(
         Double value2,
         
         @Size(max = 500, message = "Примечание не более 500 символов")
-        String note
+        String note,
+        @NotNull
+        Long TIMESTAMP,
+        @NotNull
+        Integer OFFSET_ZONE
 ) {}

@@ -2,12 +2,18 @@ package ru.HealthApp.web;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ru.HealthApp.dto.FamilyResponseDTO;
 import ru.HealthApp.dto.UserResponseDTO;
+import ru.HealthApp.repository.entities.Family;
+import ru.HealthApp.repository.entities.Invitation;
 import ru.HealthApp.repository.entities.User;
+import ru.HealthApp.security.UserPrincipal;
 import ru.HealthApp.service.FamilyService;
 import jakarta.validation.constraints.*;
+import ru.HealthApp.service.InvitationService;
 import ru.HealthApp.service.UserService;
 import ru.HealthApp.service.validators.AccessGuard;
 
@@ -21,25 +27,63 @@ public class FamilyController {
     private final FamilyService familyService;
     private final UserService userService;
     private final AccessGuard accessGuard;
+    private final InvitationService invitationService;
 
 
-    @PostMapping("/create")
-    public ResponseEntity<FamilyResponseDTO> createFamily(@RequestBody CreateFamilyRequest request) {
+    @PostMapping("/{adminEmail}")
+    public ResponseEntity<FamilyResponseDTO> createFamily(
+            @AuthenticationPrincipal UserPrincipal member,
+            @RequestBody CreateFamilyRequest request) {
+
+        String invitedUSerEmail = member.email();
+        String adminEmail = request.adminEmail;
+        String secretCode = request.secretCode;
+
+        Invitation inv = invitationService.findInvitationBySecretCodeAndInvitedEmailAndActorEmail(
+                secretCode,
+                invitedUSerEmail,
+                adminEmail);
+
+
         FamilyResponseDTO family = familyService.createFamily(
-                request.userId(),
-                request.secondMemberEmail,
-                request.familyName()
+                adminEmail,
+                invitedUSerEmail,
+                inv.getFamilyName()
         );
         return ResponseEntity.ok(family);
     }
+
+    @GetMapping("/is-no-family")
+    public ResponseEntity<FamilyResponseDTO> isFamilyUser(@AuthenticationPrincipal UserPrincipal actor) {
+        Long id = actor.userId();
+
+        User user = userService.findById(id);
+
+        FamilyResponseDTO request;
+
+        if (user.isNoFamily()) {
+            request = new FamilyResponseDTO(true, 0, "", "");
+        } else {
+            Family family = familyService.findByUserId(id);
+            request = new FamilyResponseDTO(
+                    false,
+                    family.getId(),
+                    family.getName(),
+                    user.getFamilyRole().name()
+            );
+        }
+
+        return ResponseEntity.ok(request);
+    }
+
 
     @PostMapping("/{familyId}/invite")
     public ResponseEntity<Void> inviteMember(
             @PathVariable Long familyId,
             @RequestBody InviteMemberRequest request,
-            @RequestParam Long adminId) {
+            @AuthenticationPrincipal UserPrincipal user) {
         
-        User admin = userService.findById(adminId);
+        User admin = userService.findById(user.userId());
 
         accessGuard.checkManageAccess(admin);
         
@@ -53,9 +97,9 @@ public class FamilyController {
     public ResponseEntity<UserResponseDTO> createVirtualMember(
             @PathVariable Long familyId,
             @RequestBody CreateVirtualMemberRequest request,
-            @RequestParam Long adminId) {
+            @AuthenticationPrincipal UserPrincipal user) {
         
-        User admin = userService.findById(adminId);
+        User admin = userService.findById(user.userId());
 
         accessGuard.checkManageAccess(admin);
         
@@ -70,13 +114,11 @@ public class FamilyController {
     @GetMapping("/{familyId}/members")
     public ResponseEntity<List<UserResponseDTO>> getFamilyMembers(
             @PathVariable Long familyId,
-            @RequestParam Long adminId) {
+            @AuthenticationPrincipal UserPrincipal user) {
+
+        User u = userService.findById(user.userId());
         
-        User admin = userService.findById(adminId);
-        
-        accessGuard.checkFamilyDashboardAccess(admin);
-        
-        List<UserResponseDTO> members = familyService.getFamilyMembers(familyId);
+        List<UserResponseDTO> members = familyService.getFamilyMembers(familyId, u);
         return ResponseEntity.ok(members);
     }
 
@@ -84,9 +126,9 @@ public class FamilyController {
     public ResponseEntity<Void> removeMember(
             @PathVariable Long familyId,
             @PathVariable Long userId,
-            @RequestParam Long adminId) {
+            @AuthenticationPrincipal UserPrincipal user) {
         
-        User admin = userService.findById(adminId);
+        User admin = userService.findById(user.userId());
         
         accessGuard.checkManageAccess(admin);
         
@@ -96,17 +138,13 @@ public class FamilyController {
 
 
     public record CreateFamilyRequest(
-            @NotNull(message = "ID пользователя обязателен")
-            @Positive(message = "ID пользователя должен быть положительным")
-            Long userId,
+            @NotNull
+            String secretCode,
             
-            @NotBlank(message = "Email второго члена обязателен")
+            @NotBlank(message = "Email обязателен")
             @Email(message = "Некорректный формат email")
-            String secondMemberEmail,
-            
-            @NotBlank(message = "Название семьи не может быть пустым")
-            @Size(min = 2, max = 20, message = "Название семьи от 2 до 20 символов")
-            String familyName
+            String adminEmail
+
     ) {}
 
     public record InviteMemberRequest(
@@ -120,10 +158,9 @@ public class FamilyController {
 
     public record CreateVirtualMemberRequest(
             @NotBlank(message = "Имя не может быть пустым")
-            @Size(min = 2, max = 50, message = "Имя должно быть от 2 до 50 символов")
+            @Size(min = 2, max = 30, message = "Имя должно быть от 2 до 50 символов")
             String firstName
-            /*
-            @NotNull(message = "Роль обязательна")
-            FamilyRole role*/
     ) {}
+
+
 }

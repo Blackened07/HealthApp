@@ -128,7 +128,7 @@ public class HealthRecordService {
 
     private void update(HealthRecord record, HealthRecordRequestDTO newData) {
 
-        if (newData instanceof HealthRecordRequestDTO(String type, Double v1, Double v2, String note)) {
+        if (newData instanceof HealthRecordRequestDTO(String type, Double v1, Double v2, String note, Long TIMESTAMP, Integer ZONE_OFFSET)) {
 
             if (type.equalsIgnoreCase(record.getType())) {
                 record.setValue1(v1);

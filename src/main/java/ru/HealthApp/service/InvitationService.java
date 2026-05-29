@@ -8,6 +8,7 @@ import ru.HealthApp.repository.entities.User;
 import ru.HealthApp.service.exceptions.ResourceNotFoundException;
 
 import java.time.LocalDateTime;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -16,9 +17,9 @@ public class InvitationService {
     private final InvitationRepository invitationRepository;
     private final UserService userService;
 
-    public Invitation findInvitationBySecretCodeAndInvitedEmail(String secretCode, String email) {
-        return invitationRepository.findInvitationBySecretCodeAndInvitedUserEmail(secretCode, email)
-                .orElseThrow(() -> ResourceNotFoundException.invitationNotFound(email));
+    public Invitation findInvitationBySecretCodeAndInvitedEmailAndActorEmail(String secretCode, String invitedUserEmail, String actorEmail) {
+        return invitationRepository.findInvitationBySecretCodeAndInvitedUserEmailAndActorEmail(secretCode, invitedUserEmail, actorEmail)
+                .orElseThrow(() -> ResourceNotFoundException.invitationNotFound(invitedUserEmail));
     }
 
     public boolean isInvitationExist(String actorEmail) {
@@ -54,5 +55,23 @@ public class InvitationService {
     }
 
 
+    public String generateSecretCode() {
 
+        String prefix = "FAM_";
+
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder code = new StringBuilder(prefix);
+        Random rand = new Random();
+
+        for (int i = 0; i < 9; i++) {
+            code.append(chars.charAt(rand.nextInt(chars.length())));
+
+            if (i % 3 == 0) {
+                code.append("_");
+            }
+        }
+
+        return code.toString().toUpperCase();
+
+    }
 }

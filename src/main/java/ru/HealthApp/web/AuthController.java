@@ -5,13 +5,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.HealthApp.dto.AccountResponseDTO;
+import ru.HealthApp.dto.VerificationRequestDTO;
 import ru.HealthApp.repository.entities.Account;
+import ru.HealthApp.repository.entities.User;
 import ru.HealthApp.service.AccountService;
 import ru.HealthApp.service.DoctorService;
 import ru.HealthApp.service.UserService;
+import ru.HealthApp.service.exceptions.AccessDeniedException;
+import ru.HealthApp.utils.CodeGenerator;
 import ru.HealthApp.utils.JwtUtil;
 import ru.HealthApp.utils.PasswordUtil;
 import jakarta.validation.constraints.*;
+
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -30,12 +36,14 @@ public class AuthController {
         }
 
         AccountResponseDTO accDto = null;
+        String code = CodeGenerator.generateVerificationEmailCode();
 
         if (request.systemRole == Account.SystemRole.USER) {
-             accDto = userService.createUser(
+            accDto = userService.createUser(
                     request.email(),
                     request.password(),
-                    request.firstName()
+                    request.firstName(),
+                    code
             );
         }
 
@@ -45,8 +53,9 @@ public class AuthController {
                     request.password(),
                     request.firstName()
             );
+            throw new AccessDeniedException("Пока нельзя зарегистрироваться как доктор");
         }
-        //created status?
+
         return ResponseEntity.ok(accDto);
     }
 
@@ -55,20 +64,42 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         try {
             Account account = accountService.findByEmail(request.email());
-            
+
+            if (!account.isEnabled()) {
+                throw new AccessDeniedException("Почта не подтверждена");
+            }
+
             if (!PasswordUtil.matches(request.password(), account.getPassword())) {
                 return ResponseEntity.badRequest()
                         .body(new AuthResponse("Неверный email или пароль", 0L, "", false));
             }
 
-            String token = JwtUtil.generateToken( account.getEmail(), account.getId(), account.getRole());
+            String token = JwtUtil.generateToken(account.getEmail(), account.getId(), account.getRole());
 
             return ResponseEntity.ok(new AuthResponse(token, account.getId(), account.getFirstName(), true));
-            
+
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
-                    .body(new AuthResponse("Пользователь не найден", 0L,"", false));
+                    .body(new AuthResponse("Пользователь не найден", 0L, "", false));
         }
+    }
+
+    @PostMapping("/verify")
+    public ResponseEntity<?> verify(@RequestBody VerificationRequestDTO dto) {
+        Account user = accountService.findByEmail(dto.email());
+
+        if (user.getVerificationExpiresAt().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.badRequest().body("Срок действия кода истек!");
+        }
+        if (!user.getVerificationCode().equals(dto.code())) {
+            return ResponseEntity.badRequest().body("Неверный код подтверждения!");
+        }
+
+        if (user.getRole() == Account.SystemRole.USER) {
+            userService.saveVerify((User) user);
+        }
+
+        return ResponseEntity.ok("Почта успешно подтверждена!");
     }
 
     //logout
@@ -96,19 +127,23 @@ public class AuthController {
 
             @NotNull(message = "Не выбрана роль в приложении")
             Account.SystemRole systemRole
-    ) {}
+    ) {
+    }
 
-    
+
     public record LoginRequest(
             @NotBlank(message = "Email не может быть пустым")
             @Email(message = "Некорректный формат email")
             String email,
-            
+
             @NotBlank(message = "Пароль не может быть пустым")
             String password
-    ) {}
+    ) {
+    }
 
-    public record AuthResponse(String message, Long userId, String firstName, boolean success) {}
+    public record AuthResponse(String message, Long userId, String firstName, boolean success) {
+    }
 
-    public record EmailCheckResponse(boolean exists) {}
+    public record EmailCheckResponse(boolean exists) {
+    }
 }

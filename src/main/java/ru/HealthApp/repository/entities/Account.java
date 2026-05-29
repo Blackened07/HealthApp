@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "accounts")
 @Getter @Setter
@@ -29,6 +31,15 @@ public abstract class Account {
 
     @Column(nullable = false)
     private String firstName;
+
+    @Column
+    private boolean enabled = false;
+
+    @Column
+    private String verificationCode;
+
+    @Column
+    private LocalDateTime verificationExpiresAt;
 
     @Transient
     public abstract SystemRole getRole();

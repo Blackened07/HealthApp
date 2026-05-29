@@ -2,8 +2,10 @@ package ru.HealthApp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableScheduling
 public class HealthAppApplication {
 
 	//TODO: Ниже описано то как можно проверять роли для методов! В принципале содержится вся инфа, Пре авторайз сверяет инфу из принципала с указанной у аннотации

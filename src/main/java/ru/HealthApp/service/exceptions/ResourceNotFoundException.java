@@ -35,6 +35,10 @@ public final class ResourceNotFoundException extends HealthAppException {
         return new ResourceNotFoundException("Семья", familyId);
     }
 
+    public static ResourceNotFoundException usersFamilyNotFound() {
+        return new ResourceNotFoundException("Семья пользователя ", "");
+    }
+
     public static ResourceNotFoundException invitationNotFound(String email) {
         return new ResourceNotFoundException("Приглашение для", email);
     }

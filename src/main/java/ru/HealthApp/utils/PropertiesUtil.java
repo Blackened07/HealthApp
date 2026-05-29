@@ -6,7 +6,7 @@ import java.util.Properties;
 public final class PropertiesUtil {
 
     public static final String SECRET = "HealthApp.app.secret";
-
+    public static final String ADMIN_EMAIL =  "spring.mail.username";
     private static final Properties PROPERTIES = new Properties();
 
     private PropertiesUtil() {

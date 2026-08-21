@@ -2,11 +2,14 @@ package ru.HealthApp.web;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.HealthApp.dto.AccountResponseDTO;
+import ru.HealthApp.dto.UserResponseDTO;
 import ru.HealthApp.dto.VerificationRequestDTO;
 import ru.HealthApp.repository.entities.Account;
+import ru.HealthApp.repository.entities.FamilyRole;
 import ru.HealthApp.repository.entities.User;
 import ru.HealthApp.service.AccountService;
 import ru.HealthApp.service.DoctorService;
@@ -32,31 +35,20 @@ public class AuthController {
     public ResponseEntity<AccountResponseDTO> registerAccount(@Valid @RequestBody RegisterAccountRequest request) {
 
         if (accountService.existsByEmail(request.email())) {
+            Account account = accountService.findByEmail(request.email());
+            if (!account.isEnabled()) {
+                return ResponseEntity.ok(getNotEnabledAccount(request));
+            }
             return ResponseEntity.badRequest().build();
         }
 
-        AccountResponseDTO accDto = null;
-        String code = CodeGenerator.generateVerificationEmailCode();
-
-        if (request.systemRole == Account.SystemRole.USER) {
-            accDto = userService.createUser(
-                    request.email(),
-                    request.password(),
-                    request.firstName(),
-                    code
-            );
-        }
-
-        if (request.systemRole == Account.SystemRole.DOCTOR) {
-            accDto = doctorService.createDoctor(
-                    request.email(),
-                    request.password(),
-                    request.firstName()
-            );
-            throw new AccessDeniedException("Пока нельзя зарегистрироваться как доктор");
-        }
+        AccountResponseDTO accDto = getAccount(request);
 
         return ResponseEntity.ok(accDto);
+    }
+
+    private @Nullable AccountResponseDTO getNotEnabledAccount(@Valid RegisterAccountRequest request) {
+        return new UserResponseDTO(0L, request.email(), request.firstName, FamilyRole.NO_FAMILY_USER, LocalDateTime.now());
     }
 
 
@@ -66,7 +58,8 @@ public class AuthController {
             Account account = accountService.findByEmail(request.email());
 
             if (!account.isEnabled()) {
-                throw new AccessDeniedException("Почта не подтверждена");
+                return ResponseEntity.ok(new AuthResponse("Почта не подтверждена", account.getId(), account.getFirstName(), true));
+                /*throw new AccessDeniedException("Почта не подтверждена");*/
             }
 
             if (!PasswordUtil.matches(request.password(), account.getPassword())) {
@@ -145,5 +138,28 @@ public class AuthController {
     }
 
     public record EmailCheckResponse(boolean exists) {
+    }
+
+    private AccountResponseDTO getAccount(@Valid RegisterAccountRequest request) {
+        String code = CodeGenerator.generateVerificationEmailCode();
+        AccountResponseDTO accDto = null;
+        if (request.systemRole == Account.SystemRole.USER) {
+            accDto = userService.createUser(
+                    request.email(),
+                    request.password(),
+                    request.firstName(),
+                    code
+            );
+        }
+
+        if (request.systemRole == Account.SystemRole.DOCTOR) {
+            accDto = doctorService.createDoctor(
+                    request.email(),
+                    request.password(),
+                    request.firstName()
+            );
+            throw new AccessDeniedException("Пока нельзя зарегистрироваться как доктор");
+        }
+        return accDto;
     }
 }

@@ -10,6 +10,7 @@ import ru.HealthApp.repository.entities.User;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.stream.Stream;
 
 @Component
 public class HealthRecordMapper {
@@ -21,7 +22,9 @@ public class HealthRecordMapper {
         int deviceOffset = data.OFFSET_ZONE();
         long createdAt = data.TIMESTAMP();
 
-        ZoneOffset offsetInSeconds =  ZoneOffset.ofTotalSeconds(deviceOffset / 1000);
+//        ZoneOffset offsetInSeconds =  ZoneOffset.ofTotalSeconds(deviceOffset / 1000);
+        int offsetInSeconds = Math.toIntExact(java.util.concurrent.TimeUnit.MILLISECONDS.toSeconds(deviceOffset));
+        ZoneOffset offset = ZoneOffset.ofTotalSeconds(offsetInSeconds);
         Instant instant = Instant.ofEpochMilli(createdAt);
 
         record.setType(data.type());
@@ -29,9 +32,10 @@ public class HealthRecordMapper {
         record.setValue2(data.value2());
         record.setNote(data.note());
 
+
         record.setUser(target);
         record.setHealthMetricType(record.getMetricType());
-        record.setTimestamp(LocalDateTime.ofInstant(instant, offsetInSeconds));
+        record.setTimestamp(LocalDateTime.ofInstant(instant, offset));
 
         return record;
     }

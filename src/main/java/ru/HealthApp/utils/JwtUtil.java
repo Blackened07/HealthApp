@@ -13,9 +13,7 @@ import java.util.Date;
 @Component
 public final class JwtUtil {
 
-    private static final String SECRET_KEY = "my-super-secret-key-for-health-app-jwt-token-generation";
-
-    //private static final String SECRET_KEY = PropertiesUtil.getProperty(PropertiesUtil.SECRET);
+    private static final String SECRET_KEY = PropertiesUtil.getProperty(PropertiesUtil.SECRET);
     private static final long EXPIRATION_TIME = 86400000; // 24 часа
 
     private static final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());

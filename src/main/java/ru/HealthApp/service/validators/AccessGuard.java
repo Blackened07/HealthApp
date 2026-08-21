@@ -29,8 +29,8 @@ public class AccessGuard {
         }
     }
 
-    public void checkWriteAccess(User writer, User target) {
-        if (!canBeWrittenBy(target, writer)) {
+    public void checkWriteAccess(User actor, User target) {
+        if (!canBeWrittenBy(target, actor)) {
             throw new AccessDeniedException(ExceptionMessage.WRITE_EXCEPTION.getMessage());
         }
     }
@@ -72,7 +72,7 @@ public class AccessGuard {
             return true;
         }
 
-        if (writer.getFamily().equals(target.getFamily())) {
+        if (writer.getFamily().equals(target.getFamily()) && writer.isAdmin()) {
             return true;
         }
 

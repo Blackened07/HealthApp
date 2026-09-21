@@ -3,9 +3,9 @@ package ru.HealthApp.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.HealthApp.repository.InvitationRepository;
-import ru.HealthApp.repository.entities.Invitation;
-import ru.HealthApp.repository.entities.User;
-import ru.HealthApp.service.exceptions.ResourceNotFoundException;
+import ru.HealthApp.entities.Invitation;
+import ru.HealthApp.entities.User;
+import ru.HealthApp.exceptions.ResourceNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.Random;
@@ -28,12 +28,12 @@ public class InvitationService {
 
     public boolean isUserFamilyMember(Long userId) {
         User actor = userService.findById(userId);
-        return actor.isNoFamily();
+        return !actor.isNoFamily();
     }
 
     public boolean isUserFamilyMember(String userEmail) {
         User user = userService.findByEmail(userEmail);
-        return user.isNoFamily();
+        return !user.isNoFamily();
     }
 
     public void create(String secretCode, String email, String familyName, String actorEmail) {

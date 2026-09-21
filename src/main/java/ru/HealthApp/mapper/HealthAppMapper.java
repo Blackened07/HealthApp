@@ -2,18 +2,17 @@ package ru.HealthApp.mapper;
 
 import org.springframework.stereotype.Component;
 import ru.HealthApp.dto.*;
-import ru.HealthApp.repository.entities.Doctor;
-import ru.HealthApp.repository.entities.Family;
-import ru.HealthApp.repository.entities.HealthRecord;
-import ru.HealthApp.repository.entities.User;
+import ru.HealthApp.entities.Doctor;
+import ru.HealthApp.entities.Family;
+import ru.HealthApp.entities.HealthRecord;
+import ru.HealthApp.entities.User;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.stream.Stream;
 
 @Component
-public class HealthRecordMapper {
+public class HealthAppMapper {
 
     public HealthRecord toEntity(HealthRecordRequestDTO data, User target) {
 
@@ -67,7 +66,6 @@ public class HealthRecordMapper {
     public FamilyResponseDTO toResponse(Family family, String familyRole) {
 
         return new FamilyResponseDTO(
-                true,
                 family.getId(),
                 family.getName(),
                 familyRole

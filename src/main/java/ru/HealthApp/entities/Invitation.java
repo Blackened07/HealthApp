@@ -1,4 +1,4 @@
-package ru.HealthApp.repository.entities;
+package ru.HealthApp.entities;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -31,6 +31,9 @@ public class Invitation {
     //TODO: create enum with statuses: PENDING, USED, EXPIRED
     @Column(nullable = false)
     private String status;
+
+    @Column
+    private String intType;
 
     @Column
     private LocalDateTime createdAtTimestamp;

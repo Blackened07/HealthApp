@@ -5,7 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
-import ru.HealthApp.repository.entities.Account;
+import ru.HealthApp.entities.Account;
 
 import java.security.Key;
 import java.util.Date;

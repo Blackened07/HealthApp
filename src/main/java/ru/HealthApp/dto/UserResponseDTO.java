@@ -1,6 +1,6 @@
 package ru.HealthApp.dto;
 
-import ru.HealthApp.repository.entities.FamilyRole;
+import ru.HealthApp.entities.FamilyRole;
 
 import java.time.LocalDateTime;
 

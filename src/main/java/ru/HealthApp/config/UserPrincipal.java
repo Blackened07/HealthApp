@@ -1,5 +1,6 @@
-package ru.HealthApp.security;
+package ru.HealthApp.config;
 
+import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -12,6 +13,7 @@ public record UserPrincipal(
 ) implements UserDetails {
 
     @Override
+    @NullMarked
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
     }
@@ -22,6 +24,7 @@ public record UserPrincipal(
     }
 
     @Override
+    @NullMarked
     public String getUsername() {
         return email;
     }

@@ -1,4 +1,4 @@
-package ru.HealthApp.service.exceptions;
+package ru.HealthApp.exceptions;
 
 public final class InvalidMetricException extends HealthAppException {
     public InvalidMetricException(String message) {

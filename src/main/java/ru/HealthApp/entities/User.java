@@ -1,4 +1,4 @@
-package ru.HealthApp.repository.entities;
+package ru.HealthApp.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

@@ -5,11 +5,11 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import ru.HealthApp.dto.UserResponseDTO;
-import ru.HealthApp.mapper.HealthRecordMapper;
+import ru.HealthApp.entities.Account;
+import ru.HealthApp.mapper.HealthAppMapper;
 import ru.HealthApp.repository.UserRepository;
-import ru.HealthApp.repository.entities.Account;
-import ru.HealthApp.repository.entities.User;
-import ru.HealthApp.service.exceptions.ResourceNotFoundException;
+import ru.HealthApp.entities.User;
+import ru.HealthApp.exceptions.ResourceNotFoundException;
 import ru.HealthApp.utils.PasswordUtil;
 import ru.HealthApp.utils.PropertiesUtil;
 
@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final HealthRecordMapper mapper;
+    private final HealthAppMapper mapper;
     private final JavaMailSender sender;
 
     public User findById(Long userId) {
@@ -44,10 +44,10 @@ public class UserService {
         user.setVerificationCode(code);
         user.setVerificationExpiresAt(LocalDateTime.now().plusMinutes(15));
 
-        User savedUSer = userRepository.save(user);
+        User savedUser = userRepository.save(user);
         sendVerificationCode(code, email);
 
-        return mapper.toResponse(savedUSer);
+        return mapper.toResponse(savedUser);
     }
 
     private void sendVerificationCode(String code, String email) {
@@ -60,7 +60,8 @@ public class UserService {
     }
 
 
-    public void saveVerify(User user) {
+    public void saveVerify(Account account) {
+        User user = (User) account;
         user.setEnabled(true);
         user.setVerificationCode(null);
         userRepository.save(user);

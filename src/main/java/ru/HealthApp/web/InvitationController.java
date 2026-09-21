@@ -4,18 +4,17 @@ package ru.HealthApp.web;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.HealthApp.dto.FamilyInvitationRequestDTO;
-import ru.HealthApp.security.UserPrincipal;
+import ru.HealthApp.config.UserPrincipal;
+import ru.HealthApp.service.FamilyService;
 import ru.HealthApp.service.InvitationService;
 import ru.HealthApp.service.UserService;
-import ru.HealthApp.service.exceptions.IllegalActionException;
-import ru.HealthApp.service.exceptions.ResourceNotFoundException;
+import ru.HealthApp.exceptions.IllegalActionException;
 
 @RestController
 @RequestMapping("/api/v1/invitation")
@@ -24,7 +23,7 @@ public class InvitationController {
 
     private final InvitationService invitationService;
     private final UserService userService;
-
+    private final FamilyService familyService;
     @PostMapping
     public ResponseEntity<FamilyInvitationResponseDTO> create(
             @AuthenticationPrincipal UserPrincipal actor,
@@ -42,19 +41,25 @@ public class InvitationController {
             throw new IllegalActionException("Вы уже отправили приглашение");
         }
 
-        //если актор может отправить приглашение, но юзер уже приглашёл!
-
-        if (!isBothUsersFamilyMembers(actorId, invitedUserEmail)) {
+        /*if (!isBothUsersFamilyMembers(actorId, invitedUserEmail)) {
+            return ResponseEntity.badRequest().build();
+        }*/
+        if (invitationService.isUserFamilyMember(invitedUserEmail)) {
             return ResponseEntity.badRequest().build();
         }
 
         String secretCode = invitationService.generateSecretCode();
 
+
         invitationService.create(secretCode, invitedUserEmail, familyName, actorEmail);
+
 
         FamilyInvitationResponseDTO response = new FamilyInvitationResponseDTO(secretCode);
 
         return ResponseEntity.ok(response);
+    }
+
+    private void createInvitationWithFamilyCreation() {
     }
 
     public record FamilyInvitationResponseDTO(

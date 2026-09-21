@@ -1,4 +1,4 @@
-package ru.HealthApp.service.exceptions;
+package ru.HealthApp.exceptions;
 
 import lombok.Getter;
 
@@ -33,6 +33,10 @@ public final class ResourceNotFoundException extends HealthAppException {
 
     public static ResourceNotFoundException familyNotFound(Long familyId) {
         return new ResourceNotFoundException("Семья", familyId);
+    }
+
+    public static ResourceNotFoundException familyNotFound(String familyName) {
+        return new ResourceNotFoundException("Семья", familyName);
     }
 
     public static ResourceNotFoundException usersFamilyNotFound() {

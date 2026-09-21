@@ -1,9 +1,9 @@
 package ru.HealthApp.service.validators;
 
 import org.springframework.stereotype.Component;
-import ru.HealthApp.repository.entities.HealthRecord;
-import ru.HealthApp.repository.entities.User;
-import ru.HealthApp.service.exceptions.ExceptionMessage;
+import ru.HealthApp.entities.HealthRecord;
+import ru.HealthApp.entities.User;
+import ru.HealthApp.exceptions.ExceptionMessage;
 
 
 @Component

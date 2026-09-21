@@ -5,14 +5,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.HealthApp.dto.FamilyResponseDTO;
 import ru.HealthApp.dto.UserResponseDTO;
-import ru.HealthApp.mapper.HealthRecordMapper;
+import ru.HealthApp.mapper.HealthAppMapper;
 import ru.HealthApp.repository.AccountRepository;
 import ru.HealthApp.repository.FamilyRepository;
 import ru.HealthApp.repository.UserRepository;
-import ru.HealthApp.repository.entities.*;
-import ru.HealthApp.service.exceptions.ExceptionMessage;
-import ru.HealthApp.service.exceptions.IllegalActionException;
-import ru.HealthApp.service.exceptions.ResourceNotFoundException;
+import ru.HealthApp.entities.*;
+import ru.HealthApp.exceptions.ExceptionMessage;
+import ru.HealthApp.exceptions.IllegalActionException;
+import ru.HealthApp.exceptions.ResourceNotFoundException;
 import ru.HealthApp.service.validators.AccessGuard;
 
 import java.time.LocalDateTime;
@@ -29,7 +29,7 @@ public class FamilyService {
     private final AccountService accountService;
     private final UserService userService;
     private final AccessGuard accessGuard;
-    private final HealthRecordMapper mapper;
+    private final HealthAppMapper mapper;
 
 
     @Transactional
@@ -72,7 +72,14 @@ public class FamilyService {
                 .orElseThrow(ResourceNotFoundException::usersFamilyNotFound);
     }
 
+    public FamilyResponseDTO getFamilyDtoByName(String familyName) {
+         Family family = familyRepository.findByName(familyName)
+                .orElseThrow(ResourceNotFoundException::usersFamilyNotFound);
 
+         return mapper.toResponse(
+                 family,
+                 FamilyRole.MEMBER.name());
+    }
 
     private User getUserOrElseThrow(Optional<Account> unknownAccount) {
 
@@ -95,8 +102,9 @@ public class FamilyService {
     }
 
     @Transactional
-    public void inviteToFamily(Long familyId, String email) {
-        Family family = findFamilyById(familyId);
+    public void inviteToFamily(String familyName, String email) {
+        Family family = familyRepository.findByName(familyName)
+                .orElseThrow(ResourceNotFoundException::usersFamilyNotFound);
 
         Account user = accountService.findByEmail(email);
         String role = user.getRole().toString();
@@ -183,5 +191,10 @@ public class FamilyService {
     public Family findFamilyById(Long familyId) {
         return familyRepository.findById(familyId)
                 .orElseThrow(() -> ResourceNotFoundException.familyNotFound(familyId));
+    }
+
+    public Family findFamilyByName(String familyName) {
+        return familyRepository.findByName(familyName)
+                .orElseThrow(() -> ResourceNotFoundException.familyNotFound(familyName));
     }
 }

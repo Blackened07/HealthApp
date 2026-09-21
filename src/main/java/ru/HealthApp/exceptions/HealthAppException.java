@@ -1,4 +1,4 @@
-package ru.HealthApp.service.exceptions;
+package ru.HealthApp.exceptions;
 
 import lombok.Getter;
 

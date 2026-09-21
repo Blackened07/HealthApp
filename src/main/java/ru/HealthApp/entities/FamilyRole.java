@@ -1,4 +1,4 @@
-package ru.HealthApp.repository.entities;
+package ru.HealthApp.entities;
 
 public enum FamilyRole {
     NO_FAMILY_USER,

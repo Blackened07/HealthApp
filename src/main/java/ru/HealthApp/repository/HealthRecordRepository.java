@@ -1,10 +1,9 @@
 package ru.HealthApp.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import ru.HealthApp.repository.entities.HealthRecord;
-import ru.HealthApp.repository.entities.User;
+import ru.HealthApp.entities.HealthRecord;
+import ru.HealthApp.entities.User;
 
 import java.time.LocalDateTime;
 import java.util.List;

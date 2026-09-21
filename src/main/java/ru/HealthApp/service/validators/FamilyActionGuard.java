@@ -1,7 +1,7 @@
 package ru.HealthApp.service.validators;
 
 import org.springframework.stereotype.Component;
-import ru.HealthApp.repository.entities.User;
+import ru.HealthApp.entities.User;
 
 @Component
 public class FamilyActionGuard {

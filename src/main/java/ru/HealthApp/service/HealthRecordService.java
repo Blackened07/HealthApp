@@ -5,16 +5,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.HealthApp.dto.HealthRecordRequestDTO;
 import ru.HealthApp.dto.HealthRecordResponseDTO;
-import ru.HealthApp.mapper.HealthRecordMapper;
+import ru.HealthApp.mapper.HealthAppMapper;
 import ru.HealthApp.repository.HealthRecordRepository;
-import ru.HealthApp.repository.entities.Family;
-import ru.HealthApp.repository.entities.HealthMetricType;
-import ru.HealthApp.repository.entities.HealthRecord;
-import ru.HealthApp.repository.entities.User;
-import ru.HealthApp.service.exceptions.HealthAppException;
-import ru.HealthApp.service.exceptions.IllegalActionException;
-import ru.HealthApp.service.exceptions.InvalidMetricException;
-import ru.HealthApp.service.exceptions.ResourceNotFoundException;
+import ru.HealthApp.entities.Family;
+import ru.HealthApp.entities.HealthMetricType;
+import ru.HealthApp.entities.HealthRecord;
+import ru.HealthApp.entities.User;
+import ru.HealthApp.exceptions.IllegalActionException;
+import ru.HealthApp.exceptions.ResourceNotFoundException;
 import ru.HealthApp.service.validators.AccessGuard;
 import ru.HealthApp.service.validators.FamilyActionGuard;
 import ru.HealthApp.service.validators.HealthAlertMessenger;
@@ -33,7 +31,7 @@ public class HealthRecordService {
 
     private final UserService userService;
 
-    private final HealthRecordMapper mapper;
+    private final HealthAppMapper mapper;
 
     private final AccessGuard accessGuard;
     private final FamilyActionGuard familyActionGuard;

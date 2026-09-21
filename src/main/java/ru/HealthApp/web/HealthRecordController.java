@@ -3,15 +3,13 @@ package ru.HealthApp.web;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ru.HealthApp.dto.HealthRecordRequestDTO;
 import ru.HealthApp.dto.HealthRecordResponseDTO;
-import ru.HealthApp.security.UserPrincipal;
+import ru.HealthApp.config.UserPrincipal;
 import ru.HealthApp.service.HealthRecordService;
-import ru.HealthApp.service.exceptions.InvalidMetricException;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -1,16 +1,17 @@
 package ru.HealthApp.web;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ru.HealthApp.dto.FamilyResponseDTO;
 import ru.HealthApp.dto.UserResponseDTO;
-import ru.HealthApp.repository.entities.Family;
-import ru.HealthApp.repository.entities.Invitation;
-import ru.HealthApp.repository.entities.User;
-import ru.HealthApp.security.UserPrincipal;
+import ru.HealthApp.dto.VerificationRequestDTO;
+import ru.HealthApp.entities.Family;
+import ru.HealthApp.entities.Invitation;
+import ru.HealthApp.entities.User;
+import ru.HealthApp.config.UserPrincipal;
 import ru.HealthApp.service.FamilyService;
 import jakarta.validation.constraints.*;
 import ru.HealthApp.service.InvitationService;
@@ -62,11 +63,10 @@ public class FamilyController {
         FamilyResponseDTO request;
 
         if (user.isNoFamily()) {
-            request = new FamilyResponseDTO(true, 0, "", "");
+            request = new FamilyResponseDTO( 0, "", "");
         } else {
             Family family = familyService.findByUserId(id);
             request = new FamilyResponseDTO(
-                    false,
                     family.getId(),
                     family.getName(),
                     user.getFamilyRole().name()
@@ -77,18 +77,28 @@ public class FamilyController {
     }
 
 
-    @PostMapping("/{familyId}/invite")
-    public ResponseEntity<Void> inviteMember(
-            @PathVariable Long familyId,
-            @RequestBody InviteMemberRequest request,
+    @PostMapping("/{adminEmail}/invite")
+    public ResponseEntity<FamilyResponseDTO> inviteMember(
+            @PathVariable String adminEmail,
+            @Valid @RequestBody VerificationRequestDTO request,
             @AuthenticationPrincipal UserPrincipal user) {
         
-        User admin = userService.findById(user.userId());
-
+        User admin = userService.findByEmail(adminEmail);
         accessGuard.checkManageAccess(admin);
-        
-        familyService.inviteToFamily(familyId, request.email());
-        return ResponseEntity.ok().build();
+
+        Invitation invitation = invitationService.findInvitationBySecretCodeAndInvitedEmailAndActorEmail(
+                request.code(),
+                user.email(),
+                adminEmail
+        );
+
+        String familyName = invitation.getFamilyName();
+
+        familyService.inviteToFamily(familyName, invitation.getInvitedUserEmail());
+
+        FamilyResponseDTO family = familyService.getFamilyDtoByName(familyName);
+
+        return ResponseEntity.ok(family);
     }
 
     //invite doctor to family

@@ -2,10 +2,10 @@ package ru.HealthApp.service.validators;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.HealthApp.repository.entities.Doctor;
-import ru.HealthApp.repository.entities.User;
-import ru.HealthApp.service.exceptions.AccessDeniedException;
-import ru.HealthApp.service.exceptions.ExceptionMessage;
+import ru.HealthApp.entities.Doctor;
+import ru.HealthApp.entities.User;
+import ru.HealthApp.exceptions.AccessDeniedException;
+import ru.HealthApp.exceptions.ExceptionMessage;
 
 @Component
 @RequiredArgsConstructor

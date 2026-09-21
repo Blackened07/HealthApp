@@ -2,8 +2,8 @@ package ru.HealthApp.service.validators;
 
 import org.springframework.stereotype.Component;
 import ru.HealthApp.dto.HealthRecordRequestDTO;
-import ru.HealthApp.repository.entities.HealthMetricType;
-import ru.HealthApp.service.exceptions.InvalidMetricException;
+import ru.HealthApp.entities.HealthMetricType;
+import ru.HealthApp.exceptions.InvalidMetricException;
 
 @Component
 public class RecordValuesValidator {
@@ -36,7 +36,7 @@ public class RecordValuesValidator {
 
     private void validatePressure(HealthRecordRequestDTO data) {
 
-        if (data.value2() == null) {
+        if (data.value2() == null || data.value2() == 0) {
             throw InvalidMetricException.pressureValue2Required();
         }
 

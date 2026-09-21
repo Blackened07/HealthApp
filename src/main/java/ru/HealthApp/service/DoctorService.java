@@ -4,10 +4,11 @@ package ru.HealthApp.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.HealthApp.dto.DoctorResponseDTO;
-import ru.HealthApp.mapper.HealthRecordMapper;
+import ru.HealthApp.entities.Account;
+import ru.HealthApp.mapper.HealthAppMapper;
 import ru.HealthApp.repository.DoctorRepository;
-import ru.HealthApp.repository.entities.Doctor;
-import ru.HealthApp.service.exceptions.ResourceNotFoundException;
+import ru.HealthApp.entities.Doctor;
+import ru.HealthApp.exceptions.ResourceNotFoundException;
 import ru.HealthApp.utils.PasswordUtil;
 
 @Service
@@ -15,7 +16,7 @@ import ru.HealthApp.utils.PasswordUtil;
 public class DoctorService {
 
     private final DoctorRepository doctorRepository;
-    private final HealthRecordMapper mapper;
+    private final HealthAppMapper mapper;
 
     public Doctor findById(Long doctorId) {
         return doctorRepository.findById(doctorId)
@@ -35,4 +36,10 @@ public class DoctorService {
         return mapper.toResponse(savedDoctor);
     }
 
+    public void saveVerify(Account account) {
+        Doctor doctor = (Doctor) account;
+        doctor.setEnabled(true);
+        doctor.setVerificationCode(null);
+        doctorRepository.save(doctor);
+    }
 }

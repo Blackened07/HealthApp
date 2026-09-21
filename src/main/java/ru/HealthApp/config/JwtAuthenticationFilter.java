@@ -1,4 +1,4 @@
-package ru.HealthApp.security;
+package ru.HealthApp.config;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -63,7 +63,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         authorities
                 );
 
-        authToken.setDetails(new WebAuthenticationDetailsSource()
+        authToken.setDetails(
+                new WebAuthenticationDetailsSource()
                 .buildDetails(request));
 
         return authToken;

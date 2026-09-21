@@ -2,7 +2,7 @@ package ru.HealthApp.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import ru.HealthApp.repository.entities.Account;
+import ru.HealthApp.entities.Account;
 
 import java.util.Optional;
 @Repository

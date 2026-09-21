@@ -1,4 +1,4 @@
-package ru.HealthApp.service.exceptions;
+package ru.HealthApp.exceptions;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -7,11 +7,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public enum ExceptionMessage {
+    //Access
+    EMAIL_ALREADY_VERIFY("Почта уже зарегистрирована и подтверждена"),
+    EMAIL_NOT_VERIFY("Почта не подтверждена"),
+    EXPIRED_CODE("Срок действия кода истек!"),
+    WRONG_EMAIL_OR_PASS("Неверный email или пароль"),
+    WRONG_VERIFY_CODE("Неверный код подтверждения!"),
     READ_EXCEPTION("Вы не можете просматривать данные пользователя"),
     NOT_ADMIN_EXCEPTION("Вы не администратор"),
     NO_FAMILY_EXCEPTION("Вы одиночный юзер"),
     WRITE_EXCEPTION("У вас нет прав на внесение или изменение данных этого пользователя."),
-    USER_SEARCHING_ERROR("Пользователь с %s не найден"),
+    //InvalidMetric
     MAIN_VALUE_ERROR("Основной показатель не может быть пустым."),
     VALUE_OUT_OF_RANGE("%s за пределами нормы: от %.1f до %.1f"),
     BP_VALUE2_ERROR("Для замера давления необходимы два числа (верхнее и нижнее)"),

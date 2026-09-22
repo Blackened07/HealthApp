@@ -2,10 +2,15 @@ package ru.HealthApp.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.HealthApp.config.UserPrincipal;
+import ru.HealthApp.dto.FamilyInvitationRequestDTO;
+import ru.HealthApp.dto.FamilyInvitationResponseDto;
+import ru.HealthApp.exceptions.IllegalActionException;
 import ru.HealthApp.repository.InvitationRepository;
 import ru.HealthApp.entities.Invitation;
 import ru.HealthApp.entities.User;
-import ru.HealthApp.exceptions.ResourceNotFoundException;
+import ru.HealthApp.service.validators.FamilyActionGuard;
 
 import java.time.LocalDateTime;
 import java.util.Random;
@@ -16,27 +21,52 @@ public class InvitationService {
 
     private final InvitationRepository invitationRepository;
     private final UserService userService;
+    private final FamilyActionGuard familyActionGuard;
 
-    public Invitation findInvitationBySecretCodeAndInvitedEmailAndActorEmail(String secretCode, String invitedUserEmail, String actorEmail) {
-        return invitationRepository.findInvitationBySecretCodeAndInvitedUserEmailAndActorEmail(secretCode, invitedUserEmail, actorEmail)
-                .orElseThrow(() -> ResourceNotFoundException.invitationNotFound(invitedUserEmail));
+    @Transactional(readOnly = true)
+    public boolean isInvitationToExistFamilySuccess(String adminEmail, UserPrincipal userPrincipal) {
+        User admin = userService.findByEmail(adminEmail);
+        User user = userService.findById(userPrincipal.userId());
+        return familyActionGuard.checkInvitationToExistFamily(admin, user);
+    }
+    @Transactional
+    public FamilyInvitationResponseDto createInvitation(
+            UserPrincipal actor,
+            FamilyInvitationRequestDTO request
+    ){
+        String actorEmail = actor.email();
+        String invitedUserEmail = request.invitedUserEmail();
+        String familyName = request.familyName();
+
+        checkInvitationIsPossible(actorEmail, invitedUserEmail);
+
+        String secretCode = generateSecretCode();
+        create(secretCode, invitedUserEmail, familyName, actorEmail);
+
+        return new FamilyInvitationResponseDto(secretCode);
     }
 
-    public boolean isInvitationExist(String actorEmail) {
+    private void checkInvitationIsPossible(String actorEmail, String invitedUserEmail) {
+        if (isInvitationExist(actorEmail)) {
+            throw IllegalActionException.getInvitationAlreadyExistException();
+        }
+
+        if (isUserFamilyMember(invitedUserEmail)) {
+            throw IllegalActionException.getUserAlreadyInFamilyException();
+        }
+    }
+    //and target email
+    private boolean isInvitationExist(String actorEmail) {
         return invitationRepository.existsByActorEmail(actorEmail);
     }
 
-    public boolean isUserFamilyMember(Long userId) {
-        User actor = userService.findById(userId);
-        return !actor.isNoFamily();
-    }
-
-    public boolean isUserFamilyMember(String userEmail) {
+    private boolean isUserFamilyMember(String userEmail) {
         User user = userService.findByEmail(userEmail);
         return !user.isNoFamily();
     }
 
-    public void create(String secretCode, String email, String familyName, String actorEmail) {
+
+    private void create(String secretCode, String email, String familyName, String actorEmail) {
         Invitation inv = new Invitation();
 
         LocalDateTime creationTime = LocalDateTime.now();
@@ -51,11 +81,10 @@ public class InvitationService {
         inv.setStatus("PENDING");
 
         invitationRepository.save(inv);
-
     }
 
 
-    public String generateSecretCode() {
+    private String generateSecretCode() {
 
         String prefix = "FAM_";
 

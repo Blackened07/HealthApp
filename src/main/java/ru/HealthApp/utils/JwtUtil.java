@@ -29,7 +29,7 @@ public final class JwtUtil {
                 .setSubject(email)
                 .claim("userId", userId)
                 .claim("ROLE_", role)
-                // create claim with ClassName?
+                // createInvitation claim with ClassName?
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(key, SignatureAlgorithm.HS256)

@@ -28,7 +28,7 @@ public class Invitation {
 
     @Column
     private String familyName;
-    //TODO: create enum with statuses: PENDING, USED, EXPIRED
+    //TODO: createInvitation enum with statuses: PENDING, USED, EXPIRED
     @Column(nullable = false)
     private String status;
 

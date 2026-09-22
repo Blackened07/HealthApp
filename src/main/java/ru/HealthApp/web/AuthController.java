@@ -5,14 +5,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.HealthApp.dto.AccountResponseDTO;
-import ru.HealthApp.dto.VerificationRequestDTO;
+import ru.HealthApp.dto.EmailCheckResponseDto;
+import ru.HealthApp.dto.auth.AccountResponseDTO;
+import ru.HealthApp.dto.auth.VerificationRequestDTO;
 import ru.HealthApp.dto.auth.AuthResponseDto;
 import ru.HealthApp.dto.auth.LoginRequestDto;
 import ru.HealthApp.dto.auth.RegisterAccountRequestDto;
 import ru.HealthApp.service.AccountService;
-
-import ru.HealthApp.service.UserService;
 
 
 @RestController
@@ -49,11 +48,9 @@ public class AuthController {
     }
 
     @GetMapping("/check-email")
-    public ResponseEntity<EmailCheckResponse> checkEmail(@RequestParam String email) {
+    public ResponseEntity<EmailCheckResponseDto> checkEmail(@RequestParam String email) {
         boolean exists = accountService.existsByEmail(email);
-        return ResponseEntity.ok(new EmailCheckResponse(!exists));
+        return ResponseEntity.ok(new EmailCheckResponseDto(!exists));
     }
 
-    public record EmailCheckResponse(boolean exists) {
-    }
 }

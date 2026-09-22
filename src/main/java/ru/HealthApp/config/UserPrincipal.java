@@ -28,5 +28,4 @@ public record UserPrincipal(
     public String getUsername() {
         return email;
     }
-
 }

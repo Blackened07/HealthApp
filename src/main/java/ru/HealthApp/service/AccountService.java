@@ -3,14 +3,13 @@ package ru.HealthApp.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.HealthApp.dto.AccountResponseDTO;
+import ru.HealthApp.dto.auth.AccountResponseDTO;
 import ru.HealthApp.dto.UserResponseDTO;
-import ru.HealthApp.dto.VerificationRequestDTO;
+import ru.HealthApp.dto.auth.VerificationRequestDTO;
 import ru.HealthApp.dto.auth.AuthResponseDto;
 import ru.HealthApp.dto.auth.LoginRequestDto;
 import ru.HealthApp.dto.auth.RegisterAccountRequestDto;
 import ru.HealthApp.entities.FamilyRole;
-import ru.HealthApp.entities.User;
 import ru.HealthApp.exceptions.AccessDeniedException;
 import ru.HealthApp.exceptions.ExceptionMessage;
 import ru.HealthApp.exceptions.ResourceNotFoundException;
@@ -43,7 +42,7 @@ public class AccountService {
                 return getNotEnabledAccount(request);
             }
 
-            throw new AccessDeniedException(ExceptionMessage.EMAIL_ALREADY_VERIFY.getMessage());
+            throw AccessDeniedException.getAlreadyVerifyEmailException();
         }
 
         return getAccount(request);
@@ -55,11 +54,11 @@ public class AccountService {
         Account account = findByEmail(request.email());
 
         if (!account.isEnabled()) {
-            throw new AccessDeniedException(ExceptionMessage.EMAIL_NOT_VERIFY.getMessage());
+            throw AccessDeniedException.getNotVerifyEmailException();
         }
 
         if (!PasswordUtil.matches(request.password(), account.getPassword())) {
-            throw new AccessDeniedException(ExceptionMessage.WRONG_EMAIL_OR_PASS.getMessage());
+            throw AccessDeniedException.getWrongEmailOrPassException();
         }
 
         String token = JwtUtil.generateToken(account.getEmail(), account.getId(), account.getRole());

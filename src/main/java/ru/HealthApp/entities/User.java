@@ -15,7 +15,7 @@ import java.util.Objects;
 @Setter
 @NoArgsConstructor
 @DiscriminatorValue("USER")
-public final class User extends Account{
+public final class User extends Account {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

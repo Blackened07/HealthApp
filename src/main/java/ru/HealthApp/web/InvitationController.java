@@ -5,16 +5,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.HealthApp.dto.FamilyInvitationRequestDTO;
 import ru.HealthApp.config.UserPrincipal;
-import ru.HealthApp.service.FamilyService;
+import ru.HealthApp.dto.FamilyInvitationResponseDto;
 import ru.HealthApp.service.InvitationService;
-import ru.HealthApp.service.UserService;
-import ru.HealthApp.exceptions.IllegalActionException;
 
 @RestController
 @RequestMapping("/api/v1/invitation")
@@ -22,51 +17,23 @@ import ru.HealthApp.exceptions.IllegalActionException;
 public class InvitationController {
 
     private final InvitationService invitationService;
-    private final UserService userService;
-    private final FamilyService familyService;
+    /**
+     * Метод isAdminCanInviteToFamily вызывается после создания приглашения, когда юзер отвечает на приглашение
+     * Метод отвечает на вопрос кто пригласил! Приглашение выслано для создания семьи или для вступления в существующую
+     **/
+    @GetMapping("/email/{adminEmail}")
+    public ResponseEntity<Boolean> isAdminCanInviteToFamily(
+            @PathVariable String adminEmail,
+            @AuthenticationPrincipal UserPrincipal userPrincipal){
+        boolean isInvitationRight = invitationService.isInvitationToExistFamilySuccess(adminEmail, userPrincipal);
+        return ResponseEntity.ok(isInvitationRight);
+    }
+
     @PostMapping
-    public ResponseEntity<FamilyInvitationResponseDTO> create(
+    public ResponseEntity<FamilyInvitationResponseDto> createInvitation(
             @AuthenticationPrincipal UserPrincipal actor,
             @Valid @RequestBody FamilyInvitationRequestDTO request) {
-
-        Long actorId = actor.userId();
-        String actorEmail = actor.email();
-
-        String invitedUserEmail = request.invitedUserEmail();
-        String familyName = request.familyName();
-
-        userService.findByEmail(invitedUserEmail);
-
-        if (invitationService.isInvitationExist(actorEmail)) {
-            throw new IllegalActionException("Вы уже отправили приглашение");
-        }
-
-        /*if (!isBothUsersFamilyMembers(actorId, invitedUserEmail)) {
-            return ResponseEntity.badRequest().build();
-        }*/
-        if (invitationService.isUserFamilyMember(invitedUserEmail)) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        String secretCode = invitationService.generateSecretCode();
-
-
-        invitationService.create(secretCode, invitedUserEmail, familyName, actorEmail);
-
-
-        FamilyInvitationResponseDTO response = new FamilyInvitationResponseDTO(secretCode);
-
+        var response = invitationService.createInvitation(actor, request);
         return ResponseEntity.ok(response);
-    }
-
-    private void createInvitationWithFamilyCreation() {
-    }
-
-    public record FamilyInvitationResponseDTO(
-            String secretCode
-    ) {}
-
-    private boolean isBothUsersFamilyMembers(Long actorId, String invitedUserEmail) {
-        return invitationService.isUserFamilyMember(actorId) || invitationService.isUserFamilyMember(invitedUserEmail);
     }
 }

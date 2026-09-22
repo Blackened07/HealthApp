@@ -3,37 +3,157 @@ package ru.HealthApp.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.HealthApp.config.UserPrincipal;
 import ru.HealthApp.dto.FamilyResponseDTO;
 import ru.HealthApp.dto.UserResponseDTO;
 import ru.HealthApp.mapper.HealthAppMapper;
-import ru.HealthApp.repository.AccountRepository;
 import ru.HealthApp.repository.FamilyRepository;
+import ru.HealthApp.repository.InvitationRepository;
 import ru.HealthApp.repository.UserRepository;
 import ru.HealthApp.entities.*;
 import ru.HealthApp.exceptions.ExceptionMessage;
 import ru.HealthApp.exceptions.IllegalActionException;
 import ru.HealthApp.exceptions.ResourceNotFoundException;
 import ru.HealthApp.service.validators.AccessGuard;
+import ru.HealthApp.service.validators.FamilyActionGuard;
+import ru.HealthApp.web.FamilyController;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class FamilyService {
-    private final AccountRepository accountRepository;
+
     private final FamilyRepository familyRepository;
     private final UserRepository userRepository;
+    private final InvitationRepository invitationRepository;
     private final AccountService accountService;
     private final UserService userService;
     private final AccessGuard accessGuard;
+    private final FamilyActionGuard familyActionGuard;
     private final HealthAppMapper mapper;
 
+    @Transactional
+    public FamilyResponseDTO getFamilyResponseDtoForNewFamily(
+            String invitedUserEmail,
+            String adminEmail,
+            String secretCode) {
+
+        User actor = userService.findByEmail(adminEmail);
+        User invitedUser = userService.findByEmail(invitedUserEmail);
+
+        Invitation inv = findInvitationBySecretCodeAndInvitedEmailAndActorEmail(
+                secretCode,
+                invitedUserEmail,
+                adminEmail);
+
+        familyActionGuard.checkInvitationToNewFamily(actor, invitedUser);
+
+        return createFamily(
+                adminEmail,
+                invitedUserEmail,
+                inv.getFamilyName()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public FamilyResponseDTO getFamilyResponseDtoForExistedFamily(
+            String invitedUserEmail,
+            String adminEmail,
+            String secretCode
+    ) {
+        User admin = userService.findByEmail(adminEmail);
+
+        familyActionGuard.checkIsAdminEmailInInvitationRequest(admin);
+
+        Invitation invitation = findInvitationBySecretCodeAndInvitedEmailAndActorEmail(
+                secretCode,
+                invitedUserEmail,
+                adminEmail
+        );
+
+        String familyName = invitation.getFamilyName();
+
+        inviteToFamily(familyName, invitation.getInvitedUserEmail());
+
+        return getFamilyDtoByName(familyName);
+
+    }
+
+    @Transactional(readOnly = true)
+    public FamilyResponseDTO getUserFamilyInfo(Long userId) {
+
+        User user = userService.findById(userId);
+
+        if (user.isNoFamily() || user.getFamily() == null) {
+            return new FamilyResponseDTO(0L, "", "");
+        }
+
+        Family family = user.getFamily();
+
+        return new FamilyResponseDTO(
+                family.getId(),
+                family.getName(),
+                user.getFamilyRole().name()
+        );
+    }
 
     @Transactional
-    public FamilyResponseDTO createFamily(String adminEmail, String secondMemberEmail, String familyName) {
+    public UserResponseDTO getVirtualDto(
+            Long familyId,
+            FamilyController.CreateVirtualMemberRequest request,
+            UserPrincipal user) {
+
+        User admin = userService.findById(user.userId());
+        accessGuard.checkManageAccess(admin);
+
+        return createVirtualMember(
+                familyId,
+                request.firstName()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserResponseDTO> getFamilyMembers(Long familyId, Long userId) {
+
+        User user = userService.findById(userId);
+        accessGuard.checkReadAccess(user, user);
+
+        Family family = findFamilyById(familyId);
+
+        return family.getUsers()
+                .stream()
+                .map(mapper::toResponse)
+                .toList();
+
+    }
+
+    @Transactional
+    public void removeMemberFromFamily(Long id, Long familyId, String userEmail) {
+
+        User admin = userService.findById(id);
+        accessGuard.checkManageAccess(admin);
+
+        User user = userService.findByEmail(userEmail);
+        Family family = findFamilyById(familyId);
+
+        if (user.getFamily().getId() != familyId) {
+            throw new IllegalArgumentException("Пользователь не состоит в указанной семье");
+        }
+
+        if (user.isAdmin()) {
+            throw new IllegalArgumentException("Нельзя удалить админа семьи");
+        }
+
+        family.removeUser(user);
+        user.setFamily(null);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    private FamilyResponseDTO createFamily(String adminEmail, String secondMemberEmail, String familyName) {
 
         User admin = userService.findByEmail(adminEmail);
         User member = userService.findByEmail(secondMemberEmail);
@@ -67,42 +187,8 @@ public class FamilyService {
         return mapper.toResponse(family, member.getFamilyRole().name());
     }
 
-    public Family findByUserId(Long userId) {
-        return familyRepository.findByUsersId(userId)
-                .orElseThrow(ResourceNotFoundException::usersFamilyNotFound);
-    }
-
-    public FamilyResponseDTO getFamilyDtoByName(String familyName) {
-         Family family = familyRepository.findByName(familyName)
-                .orElseThrow(ResourceNotFoundException::usersFamilyNotFound);
-
-         return mapper.toResponse(
-                 family,
-                 FamilyRole.MEMBER.name());
-    }
-
-    private User getUserOrElseThrow(Optional<Account> unknownAccount) {
-
-        if (unknownAccount.isEmpty()) {
-            throw new IllegalArgumentException("пользователя с таким адресом не существует!");
-        }
-
-        Account account = unknownAccount.get();
-        String role = account.getRole().toString();
-
-        switch (role) {
-            case "USER" -> {
-                return (User) account;
-            }
-            case "DOCTOR" -> {
-                throw new IllegalActionException("Доктор не может создать семью");
-            }
-        }
-        return null;
-    }
-
     @Transactional
-    public void inviteToFamily(String familyName, String email) {
+    private void inviteToFamily(String familyName, String email) {
         Family family = familyRepository.findByName(familyName)
                 .orElseThrow(ResourceNotFoundException::usersFamilyNotFound);
 
@@ -113,7 +199,7 @@ public class FamilyService {
             case "USER" -> {
                 User u = (User) user;
                 if (!u.isNoFamily()) {
-                    throw new IllegalArgumentException("Пользователь уже состоит в семье");
+                    throw new IllegalActionException(ExceptionMessage.USER_ALREADY_IN_FAMILY.getMessage());
                 }
 
                 family.addUser(u);
@@ -129,12 +215,10 @@ public class FamilyService {
                 }
             }
         }
-        // TODO: Отправить уведомление пользователю
     }
 
-
     @Transactional
-    public UserResponseDTO createVirtualMember(Long familyId, String firstName) {
+    private UserResponseDTO createVirtualMember(Long familyId, String firstName) {
 
         Family family = findFamilyById(familyId);
 
@@ -155,46 +239,32 @@ public class FamilyService {
         return mapper.toResponse(savedVirtualUser);
     }
 
-    public List<UserResponseDTO> getFamilyMembers(Long familyId, User user) {
-
-        accessGuard.checkReadAccess(user, user);
-
-        Family family =  familyRepository.findById(familyId)
-                .orElseThrow(() -> ResourceNotFoundException.familyNotFound(familyId));
-
-        return family.getUsers()
-                .stream()
-                .map(mapper::toResponse)
-                .toList();
-
-    }
-
-    @Transactional
-    public void removeMemberFromFamily(Long familyId, Long userId) {
-        User user = userService.findById(userId);
-        Family family = findFamilyById(familyId);
-
-        if (user.getFamily().getId() != familyId) {
-            throw new IllegalArgumentException("Пользователь не состоит в указанной семье");
-        }
-
-        if (user.isAdmin()) {
-            throw new IllegalArgumentException("Нельзя удалить админа семьи");
-        }
-
-        family.removeUser(user);
-        user.setFamily(null);
-        userRepository.save(user);
-    }
-
-
-    public Family findFamilyById(Long familyId) {
+    private Family findFamilyById(Long familyId) {
         return familyRepository.findById(familyId)
                 .orElseThrow(() -> ResourceNotFoundException.familyNotFound(familyId));
     }
 
-    public Family findFamilyByName(String familyName) {
+    private Family findFamilyByName(String familyName) {
         return familyRepository.findByName(familyName)
                 .orElseThrow(() -> ResourceNotFoundException.familyNotFound(familyName));
+    }
+
+    private Family findByUserId(Long userId) {
+        return familyRepository.findByUsersId(userId)
+                .orElseThrow(ResourceNotFoundException::usersFamilyNotFound);
+    }
+
+    private FamilyResponseDTO getFamilyDtoByName(String familyName) {
+        Family family = familyRepository.findByName(familyName)
+                .orElseThrow(ResourceNotFoundException::usersFamilyNotFound);
+
+        return mapper.toResponse(
+                family,
+                FamilyRole.MEMBER.name());
+    }
+
+    private Invitation findInvitationBySecretCodeAndInvitedEmailAndActorEmail(String secretCode, String invitedUserEmail, String actorEmail) {
+        return invitationRepository.findInvitationBySecretCodeAndInvitedUserEmailAndActorEmail(secretCode, invitedUserEmail, actorEmail)
+                .orElseThrow(() -> ResourceNotFoundException.invitationNotFound(invitedUserEmail));
     }
 }

@@ -7,7 +7,7 @@ import ru.HealthApp.entities.User;
 import ru.HealthApp.exceptions.AccessDeniedException;
 import ru.HealthApp.exceptions.ExceptionMessage;
 
-@Component
+@Component("accessGuard")
 @RequiredArgsConstructor
 public class AccessGuard {
 

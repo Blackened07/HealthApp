@@ -2,12 +2,13 @@ package ru.HealthApp.web;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ru.HealthApp.dto.FamilyResponseDTO;
 import ru.HealthApp.dto.UserResponseDTO;
-import ru.HealthApp.dto.VerificationRequestDTO;
+import ru.HealthApp.dto.auth.VerificationRequestDTO;
 import ru.HealthApp.entities.Family;
 import ru.HealthApp.entities.Invitation;
 import ru.HealthApp.entities.User;
@@ -17,6 +18,7 @@ import jakarta.validation.constraints.*;
 import ru.HealthApp.service.InvitationService;
 import ru.HealthApp.service.UserService;
 import ru.HealthApp.service.validators.AccessGuard;
+import ru.HealthApp.service.validators.FamilyActionGuard;
 
 import java.util.List;
 
@@ -28,77 +30,49 @@ public class FamilyController {
     private final FamilyService familyService;
     private final UserService userService;
     private final AccessGuard accessGuard;
-    private final InvitationService invitationService;
-
 
     @PostMapping("/{adminEmail}")
     public ResponseEntity<FamilyResponseDTO> createFamily(
             @AuthenticationPrincipal UserPrincipal member,
             @RequestBody CreateFamilyRequest request) {
 
-        String invitedUSerEmail = member.email();
+        String invitedUserEmail = member.email();
         String adminEmail = request.adminEmail;
         String secretCode = request.secretCode;
 
-        Invitation inv = invitationService.findInvitationBySecretCodeAndInvitedEmailAndActorEmail(
-                secretCode,
-                invitedUSerEmail,
-                adminEmail);
-
-
-        FamilyResponseDTO family = familyService.createFamily(
+        var familyDto = familyService.getFamilyResponseDtoForNewFamily(
+                invitedUserEmail,
                 adminEmail,
-                invitedUSerEmail,
-                inv.getFamilyName()
+                secretCode
         );
-        return ResponseEntity.ok(family);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(familyDto);
+    }
+
+    @PostMapping("/invite")
+    public ResponseEntity<FamilyResponseDTO> inviteMember(
+            @Valid @RequestBody VerificationRequestDTO request,
+            @AuthenticationPrincipal UserPrincipal user) {
+        String adminEmail = request.email();
+        String invitedUserEmail = user.email();
+        String code = request.code();
+
+        var familyDto = familyService.getFamilyResponseDtoForExistedFamily(
+          invitedUserEmail,
+          adminEmail,
+          code
+        );
+
+        return ResponseEntity.ok(familyDto);
     }
 
     @GetMapping("/is-no-family")
     public ResponseEntity<FamilyResponseDTO> isFamilyUser(@AuthenticationPrincipal UserPrincipal actor) {
         Long id = actor.userId();
-
-        User user = userService.findById(id);
-
-        FamilyResponseDTO request;
-
-        if (user.isNoFamily()) {
-            request = new FamilyResponseDTO( 0, "", "");
-        } else {
-            Family family = familyService.findByUserId(id);
-            request = new FamilyResponseDTO(
-                    family.getId(),
-                    family.getName(),
-                    user.getFamilyRole().name()
-            );
-        }
-
+        FamilyResponseDTO request = familyService.getUserFamilyInfo(id);
         return ResponseEntity.ok(request);
-    }
-
-
-    @PostMapping("/{adminEmail}/invite")
-    public ResponseEntity<FamilyResponseDTO> inviteMember(
-            @PathVariable String adminEmail,
-            @Valid @RequestBody VerificationRequestDTO request,
-            @AuthenticationPrincipal UserPrincipal user) {
-        
-        User admin = userService.findByEmail(adminEmail);
-        accessGuard.checkManageAccess(admin);
-
-        Invitation invitation = invitationService.findInvitationBySecretCodeAndInvitedEmailAndActorEmail(
-                request.code(),
-                user.email(),
-                adminEmail
-        );
-
-        String familyName = invitation.getFamilyName();
-
-        familyService.inviteToFamily(familyName, invitation.getInvitedUserEmail());
-
-        FamilyResponseDTO family = familyService.getFamilyDtoByName(familyName);
-
-        return ResponseEntity.ok(family);
     }
 
     //invite doctor to family
@@ -109,13 +83,10 @@ public class FamilyController {
             @RequestBody CreateVirtualMemberRequest request,
             @AuthenticationPrincipal UserPrincipal user) {
         
-        User admin = userService.findById(user.userId());
-
-        accessGuard.checkManageAccess(admin);
-        
-        UserResponseDTO virtualMember = familyService.createVirtualMember(
+        UserResponseDTO virtualMember = familyService.getVirtualDto(
                 familyId,
-                request.firstName()
+                request,
+                user
         );
         
         return ResponseEntity.ok(virtualMember);
@@ -126,26 +97,20 @@ public class FamilyController {
             @PathVariable Long familyId,
             @AuthenticationPrincipal UserPrincipal user) {
 
-        User u = userService.findById(user.userId());
-        
-        List<UserResponseDTO> members = familyService.getFamilyMembers(familyId, u);
+        Long userId = user.userId();
+        List<UserResponseDTO> members = familyService.getFamilyMembers(familyId, userId);
+
         return ResponseEntity.ok(members);
     }
 
     @DeleteMapping("/{familyId}/members/{userId}")
     public ResponseEntity<Void> removeMember(
             @PathVariable Long familyId,
-            @PathVariable Long userId,
+            @PathVariable String userEmail,
             @AuthenticationPrincipal UserPrincipal user) {
-        
-        User admin = userService.findById(user.userId());
-        
-        accessGuard.checkManageAccess(admin);
-        
-        familyService.removeMemberFromFamily(familyId, userId);
+        familyService.removeMemberFromFamily(user.userId(), familyId, userEmail);
         return ResponseEntity.noContent().build();
     }
-
 
     public record CreateFamilyRequest(
             @NotNull
@@ -155,15 +120,6 @@ public class FamilyController {
             @Email(message = "Некорректный формат email")
             String adminEmail
 
-    ) {}
-
-    public record InviteMemberRequest(
-            @NotBlank(message = "Email не может быть пустым")
-            @Email(message = "Некорректный формат email")
-            String email
-            
-           /* @NotNull(message = "Роль обязательна")
-            FamilyRole role*/
     ) {}
 
     public record CreateVirtualMemberRequest(

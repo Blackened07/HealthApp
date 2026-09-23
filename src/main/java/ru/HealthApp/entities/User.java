@@ -67,11 +67,11 @@ public final class User extends Account {
     public boolean equals(Object object) {
         if (object == null || getClass() != object.getClass()) return false;
         User user = (User) object;
-        return familyRole == user.familyRole && Objects.equals(lastActivity, user.lastActivity);
+        return familyRole == user.familyRole && Objects.equals(this.getId(), user.getId()) && Objects.equals(lastActivity, user.lastActivity);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(familyRole, family, lastActivity);
+        return Objects.hash(getId(), familyRole, family, lastActivity);
     }
 }

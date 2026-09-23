@@ -1,6 +1,7 @@
 package ru.HealthApp.service.validators;
 
 import org.springframework.stereotype.Component;
+import ru.HealthApp.entities.Account;
 import ru.HealthApp.entities.User;
 import ru.HealthApp.exceptions.AccessDeniedException;
 import ru.HealthApp.exceptions.ExceptionMessage;
@@ -16,6 +17,9 @@ public class FamilyActionGuard {
     }
 
     public void checkInvitationToNewFamily(User actor, User invitedUser) {
+        if (actor.equals(invitedUser)) {
+            throw new IllegalActionException(ExceptionMessage.SELF_INVITATION_ERROR.getMessage());
+        }
         if (isActorAllRight(actor)) {
             throw new IllegalActionException(ExceptionMessage.INVITATION_ERROR.getMessage());
         } else if (isInvitedAllRight(invitedUser)) {
@@ -32,8 +36,26 @@ public class FamilyActionGuard {
         return true;
     }
 
+    public void checkDeletion(User deletionUser, Long familyId ) {
+        if (deletionUser.isNoFamily()) {
+            throw new IllegalActionException(ExceptionMessage.USER_IS_NO_FAMILY.getMessage());
+        }
+
+        if (deletionUser.getFamily().getId() != familyId) {
+            throw new IllegalActionException(ExceptionMessage.USER_NOT_IN_YOUR_FAMILY.getMessage());
+        }
+
+        if (deletionUser.isAdmin()) {
+            throw new IllegalArgumentException(ExceptionMessage.CANNOT_REMOVE_ADMIN.getMessage());
+        }
+    }
+    
     private boolean isActorAllRight(User actor) {
         if (actor.isNoFamily()) {
+            return false;
+        }
+
+        if (actor.getRole() != Account.SystemRole.USER) {
             return false;
         }
 
@@ -45,6 +67,9 @@ public class FamilyActionGuard {
             return true;
         }
         if (target.isAdmin()) {
+            return true;
+        }
+        if (target.getRole() == Account.SystemRole.DOCTOR) {
             return true;
         }
 

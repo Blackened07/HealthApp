@@ -1,6 +1,4 @@
-package ru.HealthApp.dto;
-
-import ru.HealthApp.dto.auth.AccountResponseDTO;
+package ru.HealthApp.dto.auth;
 
 public record DoctorResponseDTO(
         Long id,

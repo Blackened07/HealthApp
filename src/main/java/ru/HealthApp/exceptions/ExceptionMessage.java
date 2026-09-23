@@ -35,8 +35,11 @@ public enum ExceptionMessage {
     INVITATION_ERROR("Приглашение сломано"),
     INVITING_ERROR("Невозможно быть в двух и более семьях"),
     USER_ALREADY_IN_FAMILY("Пользователь уже состоит в семье"),
+    USER_IS_NO_FAMILY("Пользователь не состоит в семье"),
+    USER_NOT_IN_YOUR_FAMILY("Пользователь не состоит в указанной семье"),
     INVITATION_ALREADY_EXIST("Вы уже отправили приглашение"),
     CANNOT_REMOVE_ADMIN("Нельзя удалить админа семьи"),
+    SELF_INVITATION_ERROR("Нельзя добавить самого себя в семью"),
 
     //FamGuard
     NOT_ADMIN_EMAIL("Почта принадлежит не администратору");

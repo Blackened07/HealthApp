@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.HealthApp.dto.auth.AccountResponseDTO;
-import ru.HealthApp.dto.UserResponseDTO;
+import ru.HealthApp.dto.auth.UserResponseDTO;
 import ru.HealthApp.dto.auth.VerificationRequestDTO;
 import ru.HealthApp.dto.auth.AuthResponseDto;
 import ru.HealthApp.dto.auth.LoginRequestDto;

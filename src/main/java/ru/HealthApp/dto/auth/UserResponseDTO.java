@@ -1,6 +1,5 @@
-package ru.HealthApp.dto;
+package ru.HealthApp.dto.auth;
 
-import ru.HealthApp.dto.auth.AccountResponseDTO;
 import ru.HealthApp.entities.FamilyRole;
 
 import java.time.LocalDateTime;

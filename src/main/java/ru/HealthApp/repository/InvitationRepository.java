@@ -19,6 +19,6 @@ public interface InvitationRepository extends JpaRepository<Invitation, Long> {
     @Transactional
     void deleteByExpirationTimestampBefore(LocalDateTime time);
 
-    boolean existsByActorEmail(String actorEmail);
+    boolean existsByActorEmailAndInvitedUserEmail(String actorEmail, String invitedUserEmail);
 
 }

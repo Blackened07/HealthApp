@@ -29,11 +29,12 @@ public class InvitationService {
         User user = userService.findById(userPrincipal.userId());
         return familyActionGuard.checkInvitationToExistFamily(admin, user);
     }
+
     @Transactional
     public FamilyInvitationResponseDto createInvitation(
             UserPrincipal actor,
             FamilyInvitationRequestDTO request
-    ){
+    ) {
         String actorEmail = actor.email();
         String invitedUserEmail = request.invitedUserEmail();
         String familyName = request.familyName();
@@ -47,24 +48,19 @@ public class InvitationService {
     }
 
     private void checkInvitationIsPossible(String actorEmail, String invitedUserEmail) {
-        if (isInvitationExist(actorEmail)) {
+        if (isInvitationExist(actorEmail, invitedUserEmail)) {
             throw IllegalActionException.getInvitationAlreadyExistException();
         }
 
-        if (isUserFamilyMember(invitedUserEmail)) {
-            throw IllegalActionException.getUserAlreadyInFamilyException();
-        }
-    }
-    //and target email
-    private boolean isInvitationExist(String actorEmail) {
-        return invitationRepository.existsByActorEmail(actorEmail);
+        User newAdmin = userService.findByEmail(actorEmail);
+        User invitedUser = userService.findByEmail(invitedUserEmail);
+
+        familyActionGuard.checkInvitationToNewFamily(newAdmin, invitedUser);
     }
 
-    private boolean isUserFamilyMember(String userEmail) {
-        User user = userService.findByEmail(userEmail);
-        return !user.isNoFamily();
+    private boolean isInvitationExist(String actorEmail, String invitedUserEmail) {
+        return invitationRepository.existsByActorEmailAndInvitedUserEmail(actorEmail, invitedUserEmail);
     }
-
 
     private void create(String secretCode, String email, String familyName, String actorEmail) {
         Invitation inv = new Invitation();

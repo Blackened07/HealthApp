@@ -7,18 +7,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ru.HealthApp.dto.FamilyResponseDTO;
-import ru.HealthApp.dto.UserResponseDTO;
+import ru.HealthApp.dto.auth.UserResponseDTO;
 import ru.HealthApp.dto.auth.VerificationRequestDTO;
-import ru.HealthApp.entities.Family;
-import ru.HealthApp.entities.Invitation;
-import ru.HealthApp.entities.User;
 import ru.HealthApp.config.UserPrincipal;
 import ru.HealthApp.service.FamilyService;
 import jakarta.validation.constraints.*;
-import ru.HealthApp.service.InvitationService;
 import ru.HealthApp.service.UserService;
 import ru.HealthApp.service.validators.AccessGuard;
-import ru.HealthApp.service.validators.FamilyActionGuard;
 
 import java.util.List;
 
@@ -103,7 +98,7 @@ public class FamilyController {
         return ResponseEntity.ok(members);
     }
 
-    @DeleteMapping("/{familyId}/members/{userId}")
+    @DeleteMapping("/{familyId}/members/{userEmail}")
     public ResponseEntity<Void> removeMember(
             @PathVariable Long familyId,
             @PathVariable String userEmail,

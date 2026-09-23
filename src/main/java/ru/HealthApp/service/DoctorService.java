@@ -3,7 +3,7 @@ package ru.HealthApp.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.HealthApp.dto.DoctorResponseDTO;
+import ru.HealthApp.dto.auth.DoctorResponseDTO;
 import ru.HealthApp.entities.Account;
 import ru.HealthApp.mapper.HealthAppMapper;
 import ru.HealthApp.repository.DoctorRepository;

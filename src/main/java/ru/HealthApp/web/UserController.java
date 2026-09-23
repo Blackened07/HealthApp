@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ru.HealthApp.config.UserPrincipal;
-import ru.HealthApp.dto.UserResponseDTO;
+import ru.HealthApp.dto.auth.UserResponseDTO;
 import ru.HealthApp.service.UserService;
 
 @RestController

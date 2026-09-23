@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.HealthApp.config.UserPrincipal;
 import ru.HealthApp.dto.FamilyResponseDTO;
-import ru.HealthApp.dto.UserResponseDTO;
+import ru.HealthApp.dto.auth.UserResponseDTO;
 import ru.HealthApp.mapper.HealthAppMapper;
 import ru.HealthApp.repository.FamilyRepository;
 import ru.HealthApp.repository.InvitationRepository;
@@ -117,7 +117,6 @@ public class FamilyService {
 
     @Transactional(readOnly = true)
     public List<UserResponseDTO> getFamilyMembers(Long familyId, Long userId) {
-
         User user = userService.findById(userId);
         accessGuard.checkReadAccess(user, user);
 
@@ -127,29 +126,21 @@ public class FamilyService {
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
-
     }
 
     @Transactional
     public void removeMemberFromFamily(Long id, Long familyId, String userEmail) {
-
         User admin = userService.findById(id);
         accessGuard.checkManageAccess(admin);
 
-        User user = userService.findByEmail(userEmail);
+        User deletionUser = userService.findByEmail(userEmail);
         Family family = findFamilyById(familyId);
 
-        if (user.getFamily().getId() != familyId) {
-            throw new IllegalArgumentException("Пользователь не состоит в указанной семье");
-        }
+        familyActionGuard.checkDeletion(deletionUser, familyId);
 
-        if (user.isAdmin()) {
-            throw new IllegalArgumentException("Нельзя удалить админа семьи");
-        }
-
-        family.removeUser(user);
-        user.setFamily(null);
-        userRepository.save(user);
+        family.removeUser(deletionUser);
+        deletionUser.setFamily(null);
+        userRepository.save(deletionUser);
     }
 
     @Transactional
@@ -158,21 +149,8 @@ public class FamilyService {
         User admin = userService.findByEmail(adminEmail);
         User member = userService.findByEmail(secondMemberEmail);
 
-        if (admin.getRole() != Account.SystemRole.USER && member.getRole() != Account.SystemRole.USER) {
-            throw new IllegalArgumentException();
-        }
-
-        if (!member.isNoFamily()) {
-            throw new IllegalArgumentException(ExceptionMessage.USER_ALREADY_IN_FAMILY.getMessage());
-        }
-
-        if (admin.getId().equals(member.getId())) {
-            throw new IllegalArgumentException("Нельзя добавить самого себя в семью");
-        }
-
         Family family = new Family();
         family.setName(familyName);
-        family = familyRepository.save(family);
 
         admin.setFamilyRole(FamilyRole.ADMIN);
         member.setFamilyRole(FamilyRole.MEMBER);

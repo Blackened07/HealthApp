@@ -6,7 +6,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.HealthApp.config.UserPrincipal;
-import ru.HealthApp.dto.UserResponseDTO;
+import ru.HealthApp.dto.auth.UserResponseDTO;
 import ru.HealthApp.entities.Account;
 import ru.HealthApp.mapper.HealthAppMapper;
 import ru.HealthApp.repository.UserRepository;

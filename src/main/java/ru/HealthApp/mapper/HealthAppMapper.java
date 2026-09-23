@@ -2,6 +2,8 @@ package ru.HealthApp.mapper;
 
 import org.springframework.stereotype.Component;
 import ru.HealthApp.dto.*;
+import ru.HealthApp.dto.auth.DoctorResponseDTO;
+import ru.HealthApp.dto.auth.UserResponseDTO;
 import ru.HealthApp.entities.Doctor;
 import ru.HealthApp.entities.Family;
 import ru.HealthApp.entities.HealthRecord;

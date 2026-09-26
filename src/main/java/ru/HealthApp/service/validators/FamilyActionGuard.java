@@ -49,7 +49,7 @@ public class FamilyActionGuard {
             throw new IllegalArgumentException(ExceptionMessage.CANNOT_REMOVE_ADMIN.getMessage());
         }
     }
-    
+
     private boolean isActorAllRight(User actor) {
         if (actor.isNoFamily()) {
             return false;

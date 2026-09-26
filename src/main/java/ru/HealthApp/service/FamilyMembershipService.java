@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.HealthApp.dto.FamilyResponseDTO;
 import ru.HealthApp.dto.auth.UserResponseDTO;
 import ru.HealthApp.entities.Family;
-import ru.HealthApp.entities.FamilyRole;
 import ru.HealthApp.entities.User;
 import ru.HealthApp.exceptions.ResourceNotFoundException;
 import ru.HealthApp.mapper.FamilyMapper;
@@ -27,7 +26,6 @@ public class FamilyMembershipService {
     private final UserService userService;
     private final AccessGuardInterface accessGuard;
     private final FamilyActionGuardInterface familyActionGuard;
-    private final FamilyMapper familyMapper;
     private final UserMapper userMapper;
 
     @Transactional(readOnly = true)

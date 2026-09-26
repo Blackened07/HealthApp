@@ -6,9 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.HealthApp.dto.auth.VerificationRequestDTO;
 import ru.HealthApp.exceptions.AccessDeniedException;
 import ru.HealthApp.exceptions.ExceptionMessage;
-import ru.HealthApp.service.AccountLookupService;
 import ru.HealthApp.entities.Account;
-import ru.HealthApp.exceptions.ResourceNotFoundException;
 
 import java.time.LocalDateTime;
 

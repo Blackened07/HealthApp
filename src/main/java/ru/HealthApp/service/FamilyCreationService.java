@@ -12,7 +12,6 @@ import ru.HealthApp.mapper.FamilyMapper;
 import ru.HealthApp.repository.FamilyRepository;
 import ru.HealthApp.repository.InvitationRepository;
 import ru.HealthApp.repository.UserRepository;
-import ru.HealthApp.service.AccountLookupService;
 import ru.HealthApp.service.validators.FamilyActionGuardInterface;
 
 @Service

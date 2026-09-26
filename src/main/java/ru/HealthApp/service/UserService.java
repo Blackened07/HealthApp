@@ -8,11 +8,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.HealthApp.config.UserPrincipal;
 import ru.HealthApp.dto.auth.UserResponseDTO;
 import ru.HealthApp.entities.Account;
-import ru.HealthApp.mapper.HealthAppMapper;
+import ru.HealthApp.mapper.UserMapper;
 import ru.HealthApp.repository.UserRepository;
 import ru.HealthApp.entities.User;
 import ru.HealthApp.exceptions.ResourceNotFoundException;
-import ru.HealthApp.service.validators.AccessGuard;
+import ru.HealthApp.service.validators.AccessGuardInterface;
 import ru.HealthApp.utils.PasswordUtil;
 import ru.HealthApp.utils.PropertiesUtil;
 
@@ -24,9 +24,9 @@ import java.time.LocalDateTime;
 @Transactional(readOnly = true)
 public class UserService {
 
-    private final AccessGuard accessGuard;
+    private final AccessGuardInterface accessGuard;
     private final UserRepository userRepository;
-    private final HealthAppMapper mapper;
+    private final UserMapper mapper;
     private final JavaMailSender sender;
 
     public UserResponseDTO getUser(Long targetUserId, UserPrincipal userPrincipal) {

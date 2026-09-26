@@ -1,62 +1,22 @@
 package ru.HealthApp.service.validators;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.HealthApp.dto.HealthRecordRequestDTO;
 import ru.HealthApp.entities.HealthMetricType;
-import ru.HealthApp.exceptions.InvalidMetricException;
+import ru.HealthApp.service.validators.strategy.MetricValidationStrategy;
+import ru.HealthApp.service.validators.strategy.ValidationStrategyFactory;
 
 @Component
-public class RecordValuesValidator {
+@RequiredArgsConstructor
+public class RecordValuesValidator implements RecordValuesValidatorInterface {
 
+    private final ValidationStrategyFactory strategyFactory;
+
+    @Override
     public void validate(HealthRecordRequestDTO data) {
-
         HealthMetricType type = HealthMetricType.fromString(data.type());
-
-        switch (type) {
-            case BLOOD_PRESSURE -> {
-                validatePressure(data);
-            }
-            case WEIGHT -> {
-                validateRange(data.value1(), 2, 300, "Масса");
-            }
-            case GLUCOSE -> {
-                validateRange(data.value1(), 1.0, 35.0, "Сахар");
-            }
-            case TEMPERATURE -> {
-                validateRange(data.value1(), 34.0, 42.0, "Температура");
-            }
-            case CUSTOM -> {
-                validateCustom(data);
-            }
-            case null, default -> {
-            }
-        }
-
+        MetricValidationStrategy strategy = strategyFactory.getStrategy(type);
+        strategy.validate(data);
     }
-
-    private void validatePressure(HealthRecordRequestDTO data) {
-
-        if (data.value2() == null || data.value2() == 0) {
-            throw InvalidMetricException.pressureValue2Required();
-        }
-
-        validateRange(data.value1(), 50.0, 250.0, "Верхнее давление");
-        validateRange(data.value2(), 30.0, 150.0, "Нижнее давление");
-
-    }
-
-    private void validateCustom(HealthRecordRequestDTO data) {
-        if (data.value1() <= 0) {
-            throw InvalidMetricException.subZeroValue();
-        }
-
-    }
-
-    private void validateRange(Double value, double min, double max, String type) {
-        if (value < min || value > max) {
-            throw InvalidMetricException.outOfRange(type, min, max);
-        }
-
-    }
-
 }

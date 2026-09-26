@@ -11,7 +11,9 @@ import ru.HealthApp.dto.auth.VerificationRequestDTO;
 import ru.HealthApp.dto.auth.AuthResponseDto;
 import ru.HealthApp.dto.auth.LoginRequestDto;
 import ru.HealthApp.dto.auth.RegisterAccountRequestDto;
-import ru.HealthApp.service.AccountService;
+import ru.HealthApp.service.RegistrationService;
+import ru.HealthApp.service.AuthenticationService;
+import ru.HealthApp.service.VerificationService;
 
 
 @RestController
@@ -19,12 +21,14 @@ import ru.HealthApp.service.AccountService;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AccountService accountService;
+    private final RegistrationService registrationService;
+    private final AuthenticationService authenticationService;
+    private final VerificationService verificationService;
 
     @PostMapping("/register")
     public ResponseEntity<AccountResponseDTO> registerAccount(@Valid @RequestBody RegisterAccountRequestDto request) {
 
-        AccountResponseDTO accountResponseDTO = accountService.register(request);
+        AccountResponseDTO accountResponseDTO = registrationService.register(request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -32,9 +36,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginRequestDto request) {
+    public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody LoginRequestDto request) {
 
-        AuthResponseDto authResponseDto = accountService.login(request);
+        AuthResponseDto authResponseDto = authenticationService.login(request);
 
         return ResponseEntity.ok(authResponseDto);
     }
@@ -42,14 +46,14 @@ public class AuthController {
     @PostMapping("/verify")
     public ResponseEntity<?> verify(@Valid @RequestBody VerificationRequestDTO request) {
 
-        accountService.verify(request);
+        verificationService.verify(request);
 
         return ResponseEntity.ok("Почта успешно подтверждена!");
     }
 
     @GetMapping("/check-email")
     public ResponseEntity<EmailCheckResponseDto> checkEmail(@RequestParam String email) {
-        boolean exists = accountService.existsByEmail(email);
+        boolean exists = registrationService.existsByEmail(email);
         return ResponseEntity.ok(new EmailCheckResponseDto(!exists));
     }
 

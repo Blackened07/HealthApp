@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.HealthApp.dto.HealthRecordRequestDTO;
 import ru.HealthApp.dto.HealthRecordResponseDTO;
-import ru.HealthApp.mapper.HealthAppMapper;
+import ru.HealthApp.mapper.HealthRecordMapper;
 import ru.HealthApp.repository.HealthRecordRepository;
 import ru.HealthApp.entities.Family;
 import ru.HealthApp.entities.HealthMetricType;
@@ -13,10 +13,10 @@ import ru.HealthApp.entities.HealthRecord;
 import ru.HealthApp.entities.User;
 import ru.HealthApp.exceptions.IllegalActionException;
 import ru.HealthApp.exceptions.ResourceNotFoundException;
-import ru.HealthApp.service.validators.AccessGuard;
-import ru.HealthApp.service.validators.FamilyActionGuard;
+import ru.HealthApp.service.validators.AccessGuardInterface;
+import ru.HealthApp.service.validators.FamilyActionGuardInterface;
 import ru.HealthApp.service.validators.HealthAlertMessenger;
-import ru.HealthApp.service.validators.RecordValuesValidator;
+import ru.HealthApp.service.validators.RecordValuesValidatorInterface;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -31,11 +31,11 @@ public class HealthRecordService {
 
     private final UserService userService;
 
-    private final HealthAppMapper mapper;
+    private final HealthRecordMapper mapper;
 
-    private final AccessGuard accessGuard;
-    private final FamilyActionGuard familyActionGuard;
-    private final RecordValuesValidator recordValuesValidator;
+    private final AccessGuardInterface accessGuard;
+    private final FamilyActionGuardInterface familyActionGuard;
+    private final RecordValuesValidatorInterface recordValuesValidator;
     private final HealthAlertMessenger healthAlertMessenger;
 
     @Transactional

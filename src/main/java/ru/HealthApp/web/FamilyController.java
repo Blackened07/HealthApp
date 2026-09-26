@@ -10,10 +10,10 @@ import ru.HealthApp.dto.FamilyResponseDTO;
 import ru.HealthApp.dto.auth.UserResponseDTO;
 import ru.HealthApp.dto.auth.VerificationRequestDTO;
 import ru.HealthApp.config.UserPrincipal;
-import ru.HealthApp.service.FamilyService;
+import ru.HealthApp.service.FamilyCreationService;
+import ru.HealthApp.service.FamilyMembershipService;
+import ru.HealthApp.service.VirtualMemberService;
 import jakarta.validation.constraints.*;
-import ru.HealthApp.service.UserService;
-import ru.HealthApp.service.validators.AccessGuard;
 
 import java.util.List;
 
@@ -22,9 +22,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FamilyController {
 
-    private final FamilyService familyService;
-    private final UserService userService;
-    private final AccessGuard accessGuard;
+    private final FamilyCreationService familyCreationService;
+    private final FamilyMembershipService familyMembershipService;
+    private final VirtualMemberService virtualMemberService;
 
     @PostMapping("/{adminEmail}")
     public ResponseEntity<FamilyResponseDTO> createFamily(
@@ -35,7 +35,7 @@ public class FamilyController {
         String adminEmail = request.adminEmail;
         String secretCode = request.secretCode;
 
-        var familyDto = familyService.getFamilyResponseDtoForNewFamily(
+        var familyDto = familyCreationService.getFamilyResponseDtoForNewFamily(
                 invitedUserEmail,
                 adminEmail,
                 secretCode
@@ -54,7 +54,7 @@ public class FamilyController {
         String invitedUserEmail = user.email();
         String code = request.code();
 
-        var familyDto = familyService.getFamilyResponseDtoForExistedFamily(
+        var familyDto = familyCreationService.getFamilyResponseDtoForExistedFamily(
           invitedUserEmail,
           adminEmail,
           code
@@ -66,7 +66,7 @@ public class FamilyController {
     @GetMapping("/is-no-family")
     public ResponseEntity<FamilyResponseDTO> isFamilyUser(@AuthenticationPrincipal UserPrincipal actor) {
         Long id = actor.userId();
-        FamilyResponseDTO request = familyService.getUserFamilyInfo(id);
+        FamilyResponseDTO request = familyMembershipService.getUserFamilyInfo(id);
         return ResponseEntity.ok(request);
     }
 
@@ -78,9 +78,9 @@ public class FamilyController {
             @RequestBody CreateVirtualMemberRequest request,
             @AuthenticationPrincipal UserPrincipal user) {
         
-        UserResponseDTO virtualMember = familyService.getVirtualDto(
+        UserResponseDTO virtualMember = virtualMemberService.createVirtualMember(
                 familyId,
-                request,
+                request.firstName(),
                 user
         );
         
@@ -93,7 +93,7 @@ public class FamilyController {
             @AuthenticationPrincipal UserPrincipal user) {
 
         Long userId = user.userId();
-        List<UserResponseDTO> members = familyService.getFamilyMembers(familyId, userId);
+        List<UserResponseDTO> members = familyMembershipService.getFamilyMembers(familyId, userId);
 
         return ResponseEntity.ok(members);
     }
@@ -103,7 +103,7 @@ public class FamilyController {
             @PathVariable Long familyId,
             @PathVariable String userEmail,
             @AuthenticationPrincipal UserPrincipal user) {
-        familyService.removeMemberFromFamily(user.userId(), familyId, userEmail);
+        familyMembershipService.removeMemberFromFamily(user.userId(), familyId, userEmail);
         return ResponseEntity.noContent().build();
     }
 

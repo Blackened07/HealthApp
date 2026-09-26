@@ -11,9 +11,9 @@ import ru.HealthApp.repository.InvitationRepository;
 import ru.HealthApp.entities.Invitation;
 import ru.HealthApp.entities.User;
 import ru.HealthApp.service.validators.FamilyActionGuard;
+import ru.HealthApp.utils.CodeGeneratorUtil;
 
 import java.time.LocalDateTime;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +41,7 @@ public class InvitationService {
 
         checkInvitationIsPossible(actorEmail, invitedUserEmail);
 
-        String secretCode = generateSecretCode();
+        String secretCode = CodeGeneratorUtil.generateFamilyInvitationCode();
         create(secretCode, invitedUserEmail, familyName, actorEmail);
 
         return new FamilyInvitationResponseDto(secretCode);
@@ -77,26 +77,5 @@ public class InvitationService {
         inv.setStatus("PENDING");
 
         invitationRepository.save(inv);
-    }
-
-
-    private String generateSecretCode() {
-
-        String prefix = "FAM_";
-
-        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        StringBuilder code = new StringBuilder(prefix);
-        Random rand = new Random();
-
-        for (int i = 0; i < 9; i++) {
-            code.append(chars.charAt(rand.nextInt(chars.length())));
-
-            if (i % 3 == 0) {
-                code.append("_");
-            }
-        }
-
-        return code.toString().toUpperCase();
-
     }
 }

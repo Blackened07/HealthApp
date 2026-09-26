@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.HealthApp.dto.auth.DoctorResponseDTO;
 import ru.HealthApp.entities.Account;
-import ru.HealthApp.mapper.HealthAppMapper;
+import ru.HealthApp.mapper.DoctorMapper;
 import ru.HealthApp.repository.DoctorRepository;
 import ru.HealthApp.entities.Doctor;
 import ru.HealthApp.exceptions.ResourceNotFoundException;
@@ -16,7 +16,7 @@ import ru.HealthApp.utils.PasswordUtil;
 public class DoctorService {
 
     private final DoctorRepository doctorRepository;
-    private final HealthAppMapper mapper;
+    private final DoctorMapper mapper;
 
     public Doctor findById(Long doctorId) {
         return doctorRepository.findById(doctorId)

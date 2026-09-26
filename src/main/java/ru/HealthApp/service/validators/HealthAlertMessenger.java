@@ -1,15 +1,18 @@
 package ru.HealthApp.service.validators;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.HealthApp.config.HealthThresholds;
 import ru.HealthApp.entities.HealthRecord;
 import ru.HealthApp.entities.User;
 import ru.HealthApp.exceptions.ExceptionMessage;
 
 
 @Component
+@RequiredArgsConstructor
 public class HealthAlertMessenger {
 
-    //создавать этот класс с пользовательскими нормами
+    private final HealthThresholds thresholds;
 
     public void check(HealthRecord record) {
 
@@ -55,17 +58,18 @@ public class HealthAlertMessenger {
 
     private boolean isPressureCritical(Double sys, Double dia) {
         if (sys == null || dia == null) return false;
-        return sys > 170 || sys < 80 || dia > 110 || dia < 40;
+        return sys > HealthThresholds.PRESSURE_SYS_MAX || sys < HealthThresholds.PRESSURE_SYS_MIN
+                || dia > HealthThresholds.PRESSURE_DIA_MAX || dia < HealthThresholds.PRESSURE_DIA_MIN;
     }
 
     private boolean isGlucoseCritical(Double value) {
         if (value == null) return false;
-        return value > 13.0 || value < 3.5;
+        return value > HealthThresholds.GLUCOSE_MAX || value < HealthThresholds.GLUCOSE_MIN;
     }
 
     private boolean isTemperatureCritical(Double value) {
         if (value == null) return false;
-        return value > 39.0 || value < 35.0;
+        return value > HealthThresholds.TEMPERATURE_MAX || value < HealthThresholds.TEMPERATURE_MIN;
     }
 
     private void sendAdminAlert(HealthRecord record, String reason) {

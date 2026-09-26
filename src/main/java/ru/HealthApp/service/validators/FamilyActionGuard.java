@@ -8,7 +8,7 @@ import ru.HealthApp.exceptions.ExceptionMessage;
 import ru.HealthApp.exceptions.IllegalActionException;
 
 @Component
-public class FamilyActionGuard {
+public class FamilyActionGuard implements FamilyActionGuardInterface {
 
     public void checkIsAdminEmailInInvitationRequest(User admin){
         if (!admin.isAdmin()) {

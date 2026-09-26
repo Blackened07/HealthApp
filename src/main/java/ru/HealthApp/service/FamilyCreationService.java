@@ -3,37 +3,29 @@ package ru.HealthApp.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.HealthApp.config.UserPrincipal;
 import ru.HealthApp.dto.FamilyResponseDTO;
-import ru.HealthApp.dto.auth.UserResponseDTO;
-import ru.HealthApp.mapper.HealthAppMapper;
-import ru.HealthApp.repository.FamilyRepository;
-import ru.HealthApp.repository.InvitationRepository;
-import ru.HealthApp.repository.UserRepository;
 import ru.HealthApp.entities.*;
 import ru.HealthApp.exceptions.ExceptionMessage;
 import ru.HealthApp.exceptions.IllegalActionException;
 import ru.HealthApp.exceptions.ResourceNotFoundException;
-import ru.HealthApp.service.validators.AccessGuard;
-import ru.HealthApp.service.validators.FamilyActionGuard;
-import ru.HealthApp.web.FamilyController;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import ru.HealthApp.mapper.FamilyMapper;
+import ru.HealthApp.repository.FamilyRepository;
+import ru.HealthApp.repository.InvitationRepository;
+import ru.HealthApp.repository.UserRepository;
+import ru.HealthApp.service.AccountLookupService;
+import ru.HealthApp.service.validators.FamilyActionGuardInterface;
 
 @Service
 @RequiredArgsConstructor
-public class FamilyService {
+public class FamilyCreationService {
 
     private final FamilyRepository familyRepository;
     private final UserRepository userRepository;
     private final InvitationRepository invitationRepository;
-    private final AccountService accountService;
+    private final AccountLookupService accountLookupService;
     private final UserService userService;
-    private final AccessGuard accessGuard;
-    private final FamilyActionGuard familyActionGuard;
-    private final HealthAppMapper mapper;
+    private final FamilyActionGuardInterface familyActionGuard;
+    private final FamilyMapper familyMapper;
 
     @Transactional
     public FamilyResponseDTO getFamilyResponseDtoForNewFamily(
@@ -79,73 +71,10 @@ public class FamilyService {
         inviteToFamily(familyName, invitation.getInvitedUserEmail());
 
         return getFamilyDtoByName(familyName);
-
-    }
-
-    @Transactional(readOnly = true)
-    public FamilyResponseDTO getUserFamilyInfo(Long userId) {
-
-        User user = userService.findById(userId);
-
-        if (user.isNoFamily() || user.getFamily() == null) {
-            return new FamilyResponseDTO(0L, "", "");
-        }
-
-        Family family = user.getFamily();
-
-        return new FamilyResponseDTO(
-                family.getId(),
-                family.getName(),
-                user.getFamilyRole().name()
-        );
-    }
-
-    @Transactional
-    public UserResponseDTO getVirtualDto(
-            Long familyId,
-            FamilyController.CreateVirtualMemberRequest request,
-            UserPrincipal user) {
-
-        User admin = userService.findById(user.userId());
-        accessGuard.checkManageAccess(admin);
-
-        return createVirtualMember(
-                familyId,
-                request.firstName()
-        );
-    }
-
-    @Transactional(readOnly = true)
-    public List<UserResponseDTO> getFamilyMembers(Long familyId, Long userId) {
-        User user = userService.findById(userId);
-        accessGuard.checkReadAccess(user, user);
-
-        Family family = findFamilyById(familyId);
-
-        return family.getUsers()
-                .stream()
-                .map(mapper::toResponse)
-                .toList();
-    }
-
-    @Transactional
-    public void removeMemberFromFamily(Long id, Long familyId, String userEmail) {
-        User admin = userService.findById(id);
-        accessGuard.checkManageAccess(admin);
-
-        User deletionUser = userService.findByEmail(userEmail);
-        Family family = findFamilyById(familyId);
-
-        familyActionGuard.checkDeletion(deletionUser, familyId);
-
-        family.removeUser(deletionUser);
-        deletionUser.setFamily(null);
-        userRepository.save(deletionUser);
     }
 
     @Transactional
     private FamilyResponseDTO createFamily(String adminEmail, String secondMemberEmail, String familyName) {
-
         User admin = userService.findByEmail(adminEmail);
         User member = userService.findByEmail(secondMemberEmail);
 
@@ -162,7 +91,7 @@ public class FamilyService {
         userRepository.save(member);
         familyRepository.save(family);
 
-        return mapper.toResponse(family, member.getFamilyRole().name());
+        return familyMapper.toResponse(family, member.getFamilyRole().name());
     }
 
     @Transactional
@@ -170,7 +99,7 @@ public class FamilyService {
         Family family = familyRepository.findByName(familyName)
                 .orElseThrow(ResourceNotFoundException::usersFamilyNotFound);
 
-        Account user = accountService.findByEmail(email);
+        Account user = accountLookupService.findByEmail(email);
         String role = user.getRole().toString();
 
         switch (role) {
@@ -195,48 +124,11 @@ public class FamilyService {
         }
     }
 
-    @Transactional
-    private UserResponseDTO createVirtualMember(Long familyId, String firstName) {
-
-        Family family = findFamilyById(familyId);
-
-        User admin = family.findAdmin();
-
-        accessGuard.checkManageAccess(admin);
-
-        User virtualMember = new User();
-        virtualMember.setEmail(admin.getEmail() + "_virtual_" + UUID.randomUUID().toString().substring(0, 8));
-        virtualMember.setPassword(UUID.randomUUID().toString()); // случайный пароль
-        virtualMember.setFirstName(firstName);
-        virtualMember.setFamilyRole(FamilyRole.VIRTUAL);
-        virtualMember.setFamily(family);
-        virtualMember.setLastActivity(LocalDateTime.now());
-
-        User savedVirtualUser = userRepository.save(virtualMember);
-
-        return mapper.toResponse(savedVirtualUser);
-    }
-
-    private Family findFamilyById(Long familyId) {
-        return familyRepository.findById(familyId)
-                .orElseThrow(() -> ResourceNotFoundException.familyNotFound(familyId));
-    }
-
-    private Family findFamilyByName(String familyName) {
-        return familyRepository.findByName(familyName)
-                .orElseThrow(() -> ResourceNotFoundException.familyNotFound(familyName));
-    }
-
-    private Family findByUserId(Long userId) {
-        return familyRepository.findByUsersId(userId)
-                .orElseThrow(ResourceNotFoundException::usersFamilyNotFound);
-    }
-
     private FamilyResponseDTO getFamilyDtoByName(String familyName) {
         Family family = familyRepository.findByName(familyName)
                 .orElseThrow(ResourceNotFoundException::usersFamilyNotFound);
 
-        return mapper.toResponse(
+        return familyMapper.toResponse(
                 family,
                 FamilyRole.MEMBER.name());
     }

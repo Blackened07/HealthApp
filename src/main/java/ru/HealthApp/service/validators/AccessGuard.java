@@ -2,14 +2,13 @@ package ru.HealthApp.service.validators;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.HealthApp.entities.Doctor;
 import ru.HealthApp.entities.User;
 import ru.HealthApp.exceptions.AccessDeniedException;
 import ru.HealthApp.exceptions.ExceptionMessage;
 
 @Component("accessGuard")
 @RequiredArgsConstructor
-public class AccessGuard {
+public class AccessGuard implements AccessGuardInterface {
 
     public void checkManageAccess(User actor) {
         if (!canManageFamily(actor)) {
@@ -23,12 +22,6 @@ public class AccessGuard {
         }
     }
 
-    public void checkDoctorAccess(Doctor reader, User target) {
-        if (canBeReadByDoctor(reader, target)) {
-            throw new AccessDeniedException(ExceptionMessage.READ_EXCEPTION.getMessage());
-        }
-    }
-
     public void checkWriteAccess(User actor, User target) {
         if (!canBeWrittenBy(target, actor)) {
             throw new AccessDeniedException(ExceptionMessage.WRITE_EXCEPTION.getMessage());
@@ -36,51 +29,45 @@ public class AccessGuard {
     }
 
     public void checkFamilyDashboardAccess(User actor) {
-        /*if (!canManageFamily(actor)) {
-            throw new AccessDeniedException(ExceptionMessage.NOT_ADMIN_EXCEPTION.getMessage());
-        }*/
-
         if (actor.isNoFamily()) {
             throw new AccessDeniedException(ExceptionMessage.NO_FAMILY_EXCEPTION.getMessage());
         }
     }
 
-    private boolean canBeReadByDoctor(Doctor reader, User target) {
-        if (target.isNoFamily()) {
-            return false;
-        }
-
-        return target.isDoctorOfUserFamily(reader);
-    }
-
     private boolean canBeReadBy(User target, User reader) {
-
-        if (reader.getId().equals(target.getId())) {
+        if (isSameUser(reader, target)) {
             return true;
         }
 
-        if (reader.isNoFamily() || target.isNoFamily()) {
+        if (hasNoFamily(reader, target)) {
             return false;
         }
 
-        return reader.getFamily().equals(target.getFamily());
+        return areInSameFamily(reader, target);
     }
 
     private boolean canBeWrittenBy(User target, User writer) {
-
-        if (writer.getId().equals(target.getId())) {
+        if (isSameUser(writer, target)) {
             return true;
         }
 
-        if (writer.getFamily().equals(target.getFamily()) && writer.isAdmin()) {
+        if (areInSameFamily(writer, target) && writer.isAdmin()) {
             return true;
         }
 
-        if (target.isVirtual() && writer.isAdmin()) {
-            return true;
-        }
+        return target.isVirtual() && writer.isAdmin();
+    }
 
-        return !target.isNoFamily() && writer.getFamily().equals(target.getFamily()) && writer.isAdmin();
+    private boolean isSameUser(User actor, User target) {
+        return actor.getId().equals(target.getId());
+    }
+
+    private boolean hasNoFamily(User actor, User target) {
+        return actor.isNoFamily() || target.isNoFamily();
+    }
+
+    private boolean areInSameFamily(User actor, User target) {
+        return actor.getFamily().equals(target.getFamily());
     }
 
     private boolean canManageFamily(User actor) {

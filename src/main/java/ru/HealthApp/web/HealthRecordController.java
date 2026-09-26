@@ -72,8 +72,6 @@ public class HealthRecordController {
         return ResponseEntity.noContent().build();
     }
 
-    //TODO LOOK DOWN
-
     @GetMapping("/dashboard")
     public ResponseEntity<List<HealthRecordResponseDTO>> getFamilyDashboard(
             @RequestParam Long actorId) {

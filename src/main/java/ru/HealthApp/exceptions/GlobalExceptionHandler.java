@@ -1,5 +1,7 @@
 package ru.HealthApp.exceptions;
 
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({
@@ -19,7 +22,7 @@ public class GlobalExceptionHandler {
             InvalidMetricException.class,
             IllegalActionException.class
     })
-    public ResponseEntity<ErrorResponse> handleHealthAppException(HealthAppException ex) {
+    public ResponseEntity<ErrorResponse> handleHealthAppException(HealthAppException ex, HttpServletRequest request) {
 
         HttpStatus status = switch (ex) {
             case AccessDeniedException ignored -> HttpStatus.FORBIDDEN;
@@ -27,6 +30,14 @@ public class GlobalExceptionHandler {
             case InvalidMetricException ignored -> HttpStatus.BAD_REQUEST;
             case IllegalActionException ignored -> HttpStatus.BAD_REQUEST;
         };
+
+        if (ex.isCritical()) {
+            log.error("КРИТИЧЕСКАЯ ОБИШКА: {} на URL: {}. IP клиента: {}",
+                    ex.getMessage(), request.getRequestURI(), request.getRemoteAddr(), ex);
+        } else {
+            log.warn("Бизнес-ошибка ({}): {} на URL: {}. IP: {}",
+                    status.value(), ex.getMessage(), request.getRequestURI(), request.getRemoteAddr());
+        }
 
         ErrorResponse response = new ErrorResponse(
                 LocalDateTime.now(),
@@ -39,11 +50,18 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> handleValidationException(
+            MethodArgumentNotValidException ex,
+            HttpServletRequest request) {
+
         Map<String, String> errors = new HashMap<>();
+
         ex.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage())
         );
+
+        log.warn("Ошибка валидации DTO на URL: {}. Неверные поля: {}. IP: {}",
+                request.getRequestURI(), errors, request.getRemoteAddr());
 
         ErrorResponse response = new ErrorResponse(
                 LocalDateTime.now(),

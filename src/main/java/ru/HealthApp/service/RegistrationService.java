@@ -1,6 +1,7 @@
 package ru.HealthApp.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.HealthApp.dto.auth.AccountResponseDTO;
@@ -13,6 +14,7 @@ import ru.HealthApp.utils.CodeGenerator;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RegistrationService {
@@ -24,18 +26,23 @@ public class RegistrationService {
     @Transactional
     public AccountResponseDTO register(RegisterAccountRequestDto request) {
         String email = request.email();
+        log.info("Попытка регистрации для email: {}", email);
 
         if (existsByEmail(email)) {
             Account account = accountLookupService.findByEmail(email);
 
             if (!account.isEnabled()) {
+                log.warn("Аккаунт уже существует, но не верифицирован: {}", email);
                 return getNotEnabledAccount(request);
             }
 
+            log.warn("Попытка регистрации с уже верифицированным email: {}", email);
             throw AccessDeniedException.getAlreadyVerifyEmailException();
         }
 
-        return getAccount(request);
+        AccountResponseDTO result = getAccount(request);
+        log.info("Успешная регистрация для email: {}, роль: {}", email, request.systemRole());
+        return result;
     }
 
     public boolean existsByEmail(String email) {

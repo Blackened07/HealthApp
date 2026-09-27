@@ -1,4 +1,4 @@
-package ru.HealthApp.service.validators.strategy;
+package ru.HealthApp.service.validators.strategy.validation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -8,13 +8,18 @@ import ru.HealthApp.exceptions.InvalidMetricException;
 
 @Component
 @RequiredArgsConstructor
-public class WeightValidator implements MetricValidationStrategy {
+public final class BloodPressureValidator implements IMetricValidationStrategy {
 
     private final HealthThresholds thresholds;
 
     @Override
     public void validate(HealthRecordRequestDTO data) {
-        validateRange(data.value1(), HealthThresholds.WEIGHT_MIN, HealthThresholds.WEIGHT_MAX, "Масса");
+        if (data.value2() == null || data.value2() == 0) {
+            throw InvalidMetricException.pressureValue2Required();
+        }
+
+        validateRange(data.value1(), HealthThresholds.PRESSURE_SYS_VALID_MIN, HealthThresholds.PRESSURE_SYS_VALID_MAX, "Верхнее давление");
+        validateRange(data.value2(), HealthThresholds.PRESSURE_DIA_VALID_MIN, HealthThresholds.PRESSURE_DIA_VALID_MAX, "Нижнее давление");
     }
 
     private void validateRange(Double value, double min, double max, String type) {

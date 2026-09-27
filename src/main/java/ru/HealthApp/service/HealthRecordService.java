@@ -13,10 +13,10 @@ import ru.HealthApp.entities.HealthRecord;
 import ru.HealthApp.entities.User;
 import ru.HealthApp.exceptions.IllegalActionException;
 import ru.HealthApp.exceptions.ResourceNotFoundException;
-import ru.HealthApp.service.validators.AccessGuardInterface;
-import ru.HealthApp.service.validators.FamilyActionGuardInterface;
+import ru.HealthApp.service.validators.IAccessGuard;
+import ru.HealthApp.service.validators.IFamilyActionGuard;
 import ru.HealthApp.service.validators.HealthAlertMessenger;
-import ru.HealthApp.service.validators.RecordValuesValidatorInterface;
+import ru.HealthApp.service.validators.IRecordValuesValidator;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -33,9 +33,8 @@ public class HealthRecordService {
 
     private final HealthRecordMapper mapper;
 
-    private final AccessGuardInterface accessGuard;
-    private final FamilyActionGuardInterface familyActionGuard;
-    private final RecordValuesValidatorInterface recordValuesValidator;
+    private final IAccessGuard accessGuard;
+    private final IRecordValuesValidator recordValuesValidator;
     private final HealthAlertMessenger healthAlertMessenger;
 
     @Transactional
@@ -100,6 +99,7 @@ public class HealthRecordService {
         this.update(record, newData);
 
         HealthRecord updated = healthRecordRepository.save(record);
+        healthAlertMessenger.check(updated);
 
         return mapper.toResponse(updated);
     }

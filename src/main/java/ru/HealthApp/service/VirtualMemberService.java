@@ -1,6 +1,7 @@
 package ru.HealthApp.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.HealthApp.config.UserPrincipal;
@@ -12,12 +13,13 @@ import ru.HealthApp.exceptions.ResourceNotFoundException;
 import ru.HealthApp.mapper.UserMapper;
 import ru.HealthApp.repository.FamilyRepository;
 import ru.HealthApp.repository.UserRepository;
-import ru.HealthApp.service.validators.AccessGuardInterface;
+import ru.HealthApp.service.validators.IAccessGuard;
 import ru.HealthApp.web.FamilyController;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class VirtualMemberService {
@@ -25,7 +27,7 @@ public class VirtualMemberService {
     private final FamilyRepository familyRepository;
     private final UserRepository userRepository;
     private final UserService userService;
-    private final AccessGuardInterface accessGuard;
+    private final IAccessGuard accessGuard;
     private final UserMapper userMapper;
 
     @Transactional
@@ -33,6 +35,8 @@ public class VirtualMemberService {
             Long familyId,
             String firstName,
             UserPrincipal user) {
+
+        log.info("Создание виртуального члена семьи. Семья ID: {}, Имя: {}, Создатель ID: {}", familyId, firstName, user.userId());
 
         User admin = userService.findById(user.userId());
         accessGuard.checkManageAccess(admin);
@@ -48,6 +52,7 @@ public class VirtualMemberService {
         virtualMember.setLastActivity(LocalDateTime.now());
 
         User savedVirtualUser = userRepository.save(virtualMember);
+        log.info("Виртуальный член создан: {} (ID: {})", firstName, savedVirtualUser.getId());
 
         return userMapper.toResponse(savedVirtualUser);
     }

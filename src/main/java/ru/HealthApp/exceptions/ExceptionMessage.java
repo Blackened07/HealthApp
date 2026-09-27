@@ -26,6 +26,7 @@ public enum ExceptionMessage {
     PRESSURE_DANGER("Критическое давление: %.0f/%.0f"),
     GLUCOSE_DANGER("Опасный уровень сахара: %.1f"),
     TEMPERATURE_DANGER("Критическая температура: %.1f"),
+    UNKNOWN_METRIC_TYPE("Неверный тип показателя"),
 
     //ResourceNotFound
     RECORD_NOT_FOUND("Запись не найдена"),

@@ -8,7 +8,7 @@ import ru.HealthApp.exceptions.ExceptionMessage;
 
 @Component("accessGuard")
 @RequiredArgsConstructor
-public class AccessGuard implements AccessGuardInterface {
+public class AccessGuard implements IAccessGuard {
 
     public void checkManageAccess(User actor) {
         if (!canManageFamily(actor)) {
@@ -71,7 +71,7 @@ public class AccessGuard implements AccessGuardInterface {
     }
 
     private boolean canManageFamily(User actor) {
-        return actor.isAdmin();
+        return actor.isAdmin() && actor.getFamily() != null;
     }
 
 }

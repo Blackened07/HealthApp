@@ -2,7 +2,7 @@ package ru.HealthApp.service.validators;
 
 import ru.HealthApp.entities.User;
 
-public interface FamilyActionGuardInterface {
+public interface IFamilyActionGuard {
 
     void checkIsAdminEmailInInvitationRequest(User admin);
 

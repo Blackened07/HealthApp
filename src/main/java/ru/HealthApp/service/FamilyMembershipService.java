@@ -1,6 +1,7 @@
 package ru.HealthApp.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.HealthApp.dto.FamilyResponseDTO;
@@ -12,11 +13,12 @@ import ru.HealthApp.mapper.FamilyMapper;
 import ru.HealthApp.mapper.UserMapper;
 import ru.HealthApp.repository.FamilyRepository;
 import ru.HealthApp.repository.UserRepository;
-import ru.HealthApp.service.validators.AccessGuardInterface;
-import ru.HealthApp.service.validators.FamilyActionGuardInterface;
+import ru.HealthApp.service.validators.IAccessGuard;
+import ru.HealthApp.service.validators.IFamilyActionGuard;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FamilyMembershipService {
@@ -24,8 +26,8 @@ public class FamilyMembershipService {
     private final FamilyRepository familyRepository;
     private final UserRepository userRepository;
     private final UserService userService;
-    private final AccessGuardInterface accessGuard;
-    private final FamilyActionGuardInterface familyActionGuard;
+    private final IAccessGuard accessGuard;
+    private final IFamilyActionGuard familyActionGuard;
     private final UserMapper userMapper;
 
     @Transactional(readOnly = true)
@@ -60,6 +62,8 @@ public class FamilyMembershipService {
 
     @Transactional
     public void removeMemberFromFamily(Long id, Long familyId, String userEmail) {
+        log.info("Попытка удаления члена семьи. Админ ID: {}, Семья ID: {}, Пользователь: {}", id, familyId, userEmail);
+
         User admin = userService.findById(id);
         accessGuard.checkManageAccess(admin);
 
@@ -71,6 +75,7 @@ public class FamilyMembershipService {
         family.removeUser(deletionUser);
         deletionUser.setFamily(null);
         userRepository.save(deletionUser);
+        log.info("Пользователь {} удален из семьи {}", userEmail, familyId);
     }
 
     private Family findFamilyById(Long familyId) {

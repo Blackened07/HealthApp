@@ -8,7 +8,7 @@ import ru.HealthApp.exceptions.ExceptionMessage;
 import ru.HealthApp.exceptions.IllegalActionException;
 
 @Component
-public class FamilyActionGuard implements FamilyActionGuardInterface {
+public class FamilyActionGuard implements IFamilyActionGuard {
 
     public void checkIsAdminEmailInInvitationRequest(User admin){
         if (!admin.isAdmin()) {
@@ -41,7 +41,9 @@ public class FamilyActionGuard implements FamilyActionGuardInterface {
             throw new IllegalActionException(ExceptionMessage.USER_IS_NO_FAMILY.getMessage());
         }
 
-        if (deletionUser.getFamily().getId() != familyId) {
+        long deletionUserFamilyId = deletionUser.getFamily().getId();
+
+        if (deletionUserFamilyId != familyId) {
             throw new IllegalActionException(ExceptionMessage.USER_NOT_IN_YOUR_FAMILY.getMessage());
         }
 

@@ -2,7 +2,7 @@ package ru.HealthApp.service.validators;
 
 import ru.HealthApp.entities.User;
 
-public interface AccessGuardInterface {
+public interface IAccessGuard {
 
     void checkManageAccess(User actor);
 

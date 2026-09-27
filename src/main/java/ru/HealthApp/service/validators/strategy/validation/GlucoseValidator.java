@@ -1,4 +1,4 @@
-package ru.HealthApp.service.validators.strategy;
+package ru.HealthApp.service.validators.strategy.validation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -8,7 +8,7 @@ import ru.HealthApp.exceptions.InvalidMetricException;
 
 @Component
 @RequiredArgsConstructor
-public class GlucoseValidator implements MetricValidationStrategy {
+public final class GlucoseValidator implements IMetricValidationStrategy {
 
     private final HealthThresholds thresholds;
 

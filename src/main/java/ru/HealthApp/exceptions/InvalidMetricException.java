@@ -15,6 +15,12 @@ public final class InvalidMetricException extends HealthAppException {
             )
         );
     }
+
+    public static InvalidMetricException MetricNotFound() {
+        return new InvalidMetricException(
+                ExceptionMessage.SUB_ZERO_VALUE.getMessage()
+        );
+    }
     
     public static InvalidMetricException subZeroValue() {
         return new InvalidMetricException(

@@ -1,6 +1,7 @@
 package ru.HealthApp.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.HealthApp.dto.auth.VerificationRequestDTO;
@@ -10,6 +11,7 @@ import ru.HealthApp.entities.Account;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class VerificationService {
@@ -20,20 +22,27 @@ public class VerificationService {
 
     @Transactional
     public void verify(VerificationRequestDTO request) {
-        Account account = accountLookupService.findByEmail(request.email());
+        String email = request.email();
+        log.info("Попытка верификации для email: {}", email);
+
+        Account account = accountLookupService.findByEmail(email);
 
         if (account.getVerificationExpiresAt().isBefore(LocalDateTime.now())) {
+            log.warn("Код верификации истек для email: {}", email);
             throw new AccessDeniedException(ExceptionMessage.EXPIRED_CODE.getMessage());
         }
 
         if (!account.getVerificationCode().equals(request.code())) {
+            log.warn("Неверный код верификации для email: {}", email);
             throw new AccessDeniedException(ExceptionMessage.WRONG_VERIFY_CODE.getMessage());
         }
 
         if (account.getRole() == Account.SystemRole.USER) {
             userService.saveVerify(account);
+            log.info("Успешная верификация пользователя: {}", email);
         } else if (account.getRole() == Account.SystemRole.DOCTOR) {
             doctorService.saveVerify(account);
+            log.info("Успешная верификация доктора: {}", email);
         }
     }
 }

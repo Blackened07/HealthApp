@@ -1,8 +1,8 @@
-package ru.HealthApp.service.validators.strategy;
+package ru.HealthApp.service.validators;
 
 import ru.HealthApp.dto.HealthRecordRequestDTO;
 
-public interface MetricValidationStrategy {
+public interface IRecordValuesValidator {
 
     void validate(HealthRecordRequestDTO data);
 }

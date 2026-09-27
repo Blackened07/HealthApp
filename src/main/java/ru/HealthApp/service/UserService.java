@@ -12,7 +12,7 @@ import ru.HealthApp.mapper.UserMapper;
 import ru.HealthApp.repository.UserRepository;
 import ru.HealthApp.entities.User;
 import ru.HealthApp.exceptions.ResourceNotFoundException;
-import ru.HealthApp.service.validators.AccessGuardInterface;
+import ru.HealthApp.service.validators.IAccessGuard;
 import ru.HealthApp.utils.PasswordUtil;
 import ru.HealthApp.utils.PropertiesUtil;
 
@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 @Transactional(readOnly = true)
 public class UserService {
 
-    private final AccessGuardInterface accessGuard;
+    private final IAccessGuard accessGuard;
     private final UserRepository userRepository;
     private final UserMapper mapper;
     private final JavaMailSender sender;

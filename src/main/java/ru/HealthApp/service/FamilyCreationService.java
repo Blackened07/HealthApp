@@ -1,6 +1,7 @@
 package ru.HealthApp.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.HealthApp.dto.FamilyResponseDTO;
@@ -12,8 +13,9 @@ import ru.HealthApp.mapper.FamilyMapper;
 import ru.HealthApp.repository.FamilyRepository;
 import ru.HealthApp.repository.InvitationRepository;
 import ru.HealthApp.repository.UserRepository;
-import ru.HealthApp.service.validators.FamilyActionGuardInterface;
+import ru.HealthApp.service.validators.IFamilyActionGuard;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FamilyCreationService {
@@ -23,7 +25,7 @@ public class FamilyCreationService {
     private final InvitationRepository invitationRepository;
     private final AccountLookupService accountLookupService;
     private final UserService userService;
-    private final FamilyActionGuardInterface familyActionGuard;
+    private final IFamilyActionGuard familyActionGuard;
     private final FamilyMapper familyMapper;
 
     @Transactional
@@ -31,6 +33,8 @@ public class FamilyCreationService {
             String invitedUserEmail,
             String adminEmail,
             String secretCode) {
+
+        log.info("Создание новой семьи. Админ: {}, Приглашенный: {}", adminEmail, invitedUserEmail);
 
         User actor = userService.findByEmail(adminEmail);
         User invitedUser = userService.findByEmail(invitedUserEmail);
@@ -42,11 +46,13 @@ public class FamilyCreationService {
 
         familyActionGuard.checkInvitationToNewFamily(actor, invitedUser);
 
-        return createFamily(
+        FamilyResponseDTO result = createFamily(
                 adminEmail,
                 invitedUserEmail,
                 inv.getFamilyName()
         );
+        log.info("Семья успешно создана: {}", inv.getFamilyName());
+        return result;
     }
 
     @Transactional(readOnly = true)
@@ -55,6 +61,8 @@ public class FamilyCreationService {
             String adminEmail,
             String secretCode
     ) {
+        log.info("Приглашение в существующую семью. Админ: {}, Приглашенный: {}", adminEmail, invitedUserEmail);
+
         User admin = userService.findByEmail(adminEmail);
 
         familyActionGuard.checkIsAdminEmailInInvitationRequest(admin);
@@ -69,7 +77,9 @@ public class FamilyCreationService {
 
         inviteToFamily(familyName, invitation.getInvitedUserEmail());
 
-        return getFamilyDtoByName(familyName);
+        FamilyResponseDTO result = getFamilyDtoByName(familyName);
+        log.info("Пользователь {} добавлен в семью {}", invitedUserEmail, familyName);
+        return result;
     }
 
     @Transactional
@@ -105,7 +115,7 @@ public class FamilyCreationService {
             case "USER" -> {
                 User u = (User) user;
                 if (!u.isNoFamily()) {
-                    throw new IllegalActionException(ExceptionMessage.USER_ALREADY_IN_FAMILY.getMessage());
+                    throw IllegalActionException.getUserAlreadyInFamilyException();
                 }
 
                 family.addUser(u);

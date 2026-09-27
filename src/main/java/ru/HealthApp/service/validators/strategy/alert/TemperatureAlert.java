@@ -1,12 +1,14 @@
 package ru.HealthApp.service.validators.strategy.alert;
 
+import org.springframework.stereotype.Component;
 import ru.HealthApp.config.HealthThresholds;
 import ru.HealthApp.entities.HealthRecord;
 import ru.HealthApp.exceptions.ExceptionMessage;
 
-public final class TemperatureAlert implements IHealthAlertStrategy{
+@Component
+final class TemperatureAlert implements IHealthAlertStrategy{
     @Override
-    public AlertMessage check(HealthRecord record, String alertReason) {
+    public AlertMessage getAlertMessage(HealthRecord record, String alertReason) {
         double v1 = record.getValue1();
 
         if (isTemperatureCritical(v1)) {

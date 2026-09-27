@@ -1,4 +1,4 @@
-package ru.HealthApp.service.validators;
+package ru.HealthApp.service.validators.strategy.validation;
 
 import ru.HealthApp.dto.HealthRecordRequestDTO;
 

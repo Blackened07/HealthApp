@@ -6,8 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
 @Entity
 @Table(name = "users")
@@ -29,8 +31,8 @@ public final class User extends Account {
     @Column(nullable = false)
     private LocalDateTime lastActivity;
 
-    public User getAdmin() {
-        return family != null ? family.findAdmin() : null;
+    public Optional<User> getAdmin() {
+        return family != null ? Optional.of(family.findAdmin()) : Optional.empty();
     }
 
     public boolean isAdmin() {

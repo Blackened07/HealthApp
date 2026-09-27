@@ -1,16 +1,12 @@
 package ru.HealthApp.service.validators.strategy.validation;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.HealthApp.config.HealthThresholds;
 import ru.HealthApp.dto.HealthRecordRequestDTO;
 import ru.HealthApp.exceptions.InvalidMetricException;
 
 @Component
-@RequiredArgsConstructor
-public final class GlucoseValidator implements IMetricValidationStrategy {
-
-    private final HealthThresholds thresholds;
+final class GlucoseValidator implements IMetricValidationStrategy {
 
     @Override
     public void validate(HealthRecordRequestDTO data) {

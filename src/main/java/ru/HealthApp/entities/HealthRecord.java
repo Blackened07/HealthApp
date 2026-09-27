@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
 @Entity
 @Table(name = "health_records")
@@ -45,7 +46,7 @@ public class HealthRecord {
         return user.getFirstName();
     }
 
-    public User getAdminUserOfThisRecord() {
+    public Optional<User> getAdminUserOfThisRecord() {
         return user.getAdmin();
     }
 

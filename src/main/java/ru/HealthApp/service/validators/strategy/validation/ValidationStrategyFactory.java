@@ -6,13 +6,14 @@ import ru.HealthApp.exceptions.InvalidMetricException;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
-public class ValidationStrategyFactory {
+class ValidationStrategyFactory {
 
     private final Map<HealthMetricType, IMetricValidationStrategy> strategies;
 
-    public ValidationStrategyFactory(
+    ValidationStrategyFactory(
             BloodPressureValidator bloodPressureValidator,
             WeightValidator weightValidator,
             GlucoseValidator glucoseValidator,
@@ -25,11 +26,8 @@ public class ValidationStrategyFactory {
         strategies.put(HealthMetricType.TEMPERATURE, temperatureValidator);
     }
 
-    public IMetricValidationStrategy getStrategy(HealthMetricType type) {
-        IMetricValidationStrategy strategy = strategies.get(type);
-        if (strategy == null) {
-            throw new InvalidMetricException("Unknown metric type: " + type);
-        }
-        return strategy;
+    IMetricValidationStrategy getStrategy(HealthMetricType type) {
+        return Optional.ofNullable(strategies.get(type))
+                .orElseThrow(InvalidMetricException::MetricNotFound);
     }
 }

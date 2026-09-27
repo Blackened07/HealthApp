@@ -1,10 +1,12 @@
 package ru.HealthApp.service.validators.strategy.alert;
 
+import org.springframework.stereotype.Component;
 import ru.HealthApp.entities.HealthRecord;
 
-public final class WeightAlert implements IHealthAlertStrategy{
+@Component
+final class WeightAlert implements IHealthAlertStrategy{
     @Override
-    public AlertMessage check(HealthRecord record, String alertReason) {
+    public AlertMessage getAlertMessage(HealthRecord record, String alertReason) {
         return AlertMessage.create(alertReason);
     }
 }

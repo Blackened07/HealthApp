@@ -51,7 +51,7 @@ public class AuthController {
         return ResponseEntity.ok("Почта успешно подтверждена!");
     }
 
-    @GetMapping("/check-email")
+    @GetMapping("/sendAlert-email")
     public ResponseEntity<EmailCheckResponseDto> checkEmail(@RequestParam String email) {
         boolean exists = registrationService.existsByEmail(email);
         return ResponseEntity.ok(new EmailCheckResponseDto(!exists));

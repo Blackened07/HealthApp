@@ -1,15 +1,18 @@
 package ru.HealthApp.service.validators.strategy.alert;
 
+import org.springframework.stereotype.Component;
 import ru.HealthApp.entities.HealthMetricType;
 import ru.HealthApp.exceptions.InvalidMetricException;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Optional;
 
+@Component
 public class HealthAlertFactory {
     private final Map<HealthMetricType, IHealthAlertStrategy> strategies;
 
-    public HealthAlertFactory(
+    HealthAlertFactory(
             BloodPressureAlert bloodPressureAlert,
             GlucoseAlert glucoseAlert,
             TemperatureAlert temperatureAlert,
@@ -22,11 +25,8 @@ public class HealthAlertFactory {
         strategies.put(HealthMetricType.WEIGHT, weightAlert);
     }
 
-    public IHealthAlertStrategy getStrategy(HealthMetricType type) {
-        IHealthAlertStrategy healthMetricType = strategies.get(type);
-        if (healthMetricType == null) {
-            throw InvalidMetricException.MetricNotFound();
-        }
-        return healthMetricType;
+    IHealthAlertStrategy getStrategy(HealthMetricType type) {
+        return Optional.ofNullable(strategies.get(type))
+                .orElseThrow(InvalidMetricException::MetricNotFound);
     }
 }

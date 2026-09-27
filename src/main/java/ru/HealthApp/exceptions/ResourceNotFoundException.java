@@ -1,6 +1,7 @@
 package ru.HealthApp.exceptions;
 
 import lombok.Getter;
+import ru.HealthApp.entities.User;
 
 @Getter
 public final class ResourceNotFoundException extends HealthAppException {
@@ -8,7 +9,7 @@ public final class ResourceNotFoundException extends HealthAppException {
     private final String resourceType;
     private final Object resourceId;
 
-    public ResourceNotFoundException(String resourceType, Object resourceId) {
+    private ResourceNotFoundException(String resourceType, Object resourceId) {
 
         super(String.format("%s - %s не найден", resourceType, resourceId), false);
         this.resourceType = resourceType;

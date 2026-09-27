@@ -1,15 +1,13 @@
-package ru.HealthApp.service.validators;
+package ru.HealthApp.service.validators.strategy.validation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.HealthApp.dto.HealthRecordRequestDTO;
 import ru.HealthApp.entities.HealthMetricType;
-import ru.HealthApp.service.validators.strategy.validation.IMetricValidationStrategy;
-import ru.HealthApp.service.validators.strategy.validation.ValidationStrategyFactory;
 
 @Component
 @RequiredArgsConstructor
-public class RecordValuesValidator implements IRecordValuesValidator {
+class RecordValuesValidator implements IRecordValuesValidator {
 
     private final ValidationStrategyFactory strategyFactory;
 

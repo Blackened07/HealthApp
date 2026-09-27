@@ -14,9 +14,8 @@ import ru.HealthApp.entities.User;
 import ru.HealthApp.exceptions.IllegalActionException;
 import ru.HealthApp.exceptions.ResourceNotFoundException;
 import ru.HealthApp.service.validators.IAccessGuard;
-import ru.HealthApp.service.validators.IFamilyActionGuard;
-import ru.HealthApp.service.validators.HealthAlertMessenger;
-import ru.HealthApp.service.validators.IRecordValuesValidator;
+import ru.HealthApp.service.validators.strategy.validation.IRecordValuesValidator;
+import ru.HealthApp.service.validators.strategy.alert.IHealthAlertMessenger;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -35,7 +34,7 @@ public class HealthRecordService {
 
     private final IAccessGuard accessGuard;
     private final IRecordValuesValidator recordValuesValidator;
-    private final HealthAlertMessenger healthAlertMessenger;
+    private final IHealthAlertMessenger healthAlertMessenger;
 
     @Transactional
     public HealthRecordResponseDTO createRecord(Long actorId, Long targetId, HealthRecordRequestDTO data) {
@@ -49,7 +48,7 @@ public class HealthRecordService {
         HealthRecord record = mapper.toEntity(data, target);
         HealthRecord savedRecord = healthRecordRepository.save(record);
 
-        healthAlertMessenger.check(savedRecord);
+        healthAlertMessenger.sendAlert(savedRecord);
 
         return mapper.toResponse(savedRecord);
     }
@@ -99,7 +98,7 @@ public class HealthRecordService {
         this.update(record, newData);
 
         HealthRecord updated = healthRecordRepository.save(record);
-        healthAlertMessenger.check(updated);
+        healthAlertMessenger.sendAlert(updated);
 
         return mapper.toResponse(updated);
     }

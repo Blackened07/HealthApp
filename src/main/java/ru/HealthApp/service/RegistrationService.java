@@ -67,7 +67,7 @@ public class RegistrationService {
     }
 
     private AccountResponseDTO getDoctorAccount(RegisterAccountRequestDto request, String code) {
-        throw new AccessDeniedException("Пока нельзя зарегистрироваться как доктор");
+        throw AccessDeniedException.getDoctorRegistrationDisabledException();
     }
 
     private AccountResponseDTO getNotEnabledAccount(RegisterAccountRequestDto request) {

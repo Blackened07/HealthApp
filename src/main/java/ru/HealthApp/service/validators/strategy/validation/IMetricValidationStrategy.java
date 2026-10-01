@@ -1,9 +1,9 @@
 package ru.HealthApp.service.validators.strategy.validation;
 
-import ru.HealthApp.dto.HealthRecordRequestDTO;
+import ru.HealthApp.entities.HealthRecord;
 
 public sealed interface IMetricValidationStrategy
         permits BloodPressureValidator, GlucoseValidator, TemperatureValidator, WeightValidator {
 
-    void validate(HealthRecordRequestDTO data);
+    boolean validate(HealthRecord data);
 }

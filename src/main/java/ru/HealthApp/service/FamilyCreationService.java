@@ -127,7 +127,7 @@ public class FamilyCreationService {
                 if (!family.isFamilyDoctor(d)) {
                     family.addDoctor(d);
                 } else {
-                    throw new IllegalArgumentException("Доктор уже курирует вашу семью");
+                    throw IllegalActionException.getDoctorAlreadyCuresFamilyException();
                 }
             }
         }

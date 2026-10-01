@@ -29,12 +29,12 @@ public class VerificationService {
 
         if (account.getVerificationExpiresAt().isBefore(LocalDateTime.now())) {
             log.warn("Код верификации истек для email: {}", email);
-            throw new AccessDeniedException(ExceptionMessage.EXPIRED_CODE.getMessage());
+            throw AccessDeniedException.getExpiredCodeException();
         }
 
         if (!account.getVerificationCode().equals(request.code())) {
             log.warn("Неверный код верификации для email: {}", email);
-            throw new AccessDeniedException(ExceptionMessage.WRONG_VERIFY_CODE.getMessage());
+            throw AccessDeniedException.getWrongVerifyCodeException();
         }
 
         if (account.getRole() == Account.SystemRole.USER) {

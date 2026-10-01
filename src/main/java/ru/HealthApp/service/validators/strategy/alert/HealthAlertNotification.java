@@ -4,21 +4,25 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.HealthApp.entities.HealthRecord;
 import ru.HealthApp.entities.User;
+import ru.HealthApp.notifications.INotification;
+import ru.HealthApp.notifications.Message;
 
 import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-class HealthAlertMessenger implements IHealthAlertMessenger {
+class HealthAlertNotification implements INotification {
 
-    private final HealthAlertValidator healthAlertValidator;
+    @Override
+    public void send(Message<?> message) {
 
-    public void sendAlert(HealthRecord record) {
-        AlertMessage message = healthAlertValidator.validate(record);
-        sendAdminAlert(record, message);
+        if (message.getContent() instanceof HealthRecord) {
+            sendAdminAlert((HealthRecord) message.getContent(), message.getMessage());
+        }
+
     }
 
-    private void sendAdminAlert(HealthRecord record, AlertMessage message) {
+    private void sendAdminAlert(HealthRecord record, String message) {
 
         Optional<User> userAdmin = record.getAdminUserOfThisRecord();
 
@@ -27,16 +31,15 @@ class HealthAlertMessenger implements IHealthAlertMessenger {
         }
 
         User admin = userAdmin.get();
-        String reason = message.getMessage();
+        User recordOwner = record.getUser();
 
-        if (reason.isBlank()) {
+        if (message.isBlank()) {
             return;
         }
 
         //создать класс Нотификейшн или Мессейдж. На клиенте создать активити с сообщениями от кого и тд
         System.err.println("!!! [ALARM] ДЛЯ: " + admin.getFirstName());
-        System.err.println("У " + record.getUserName() + " обнаружено: " + reason);
+        System.err.println("У " + record.getUserName() + " обнаружено: " + message);
         System.err.println("--------------------------------------------------");
     }
-
 }

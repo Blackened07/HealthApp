@@ -5,6 +5,7 @@ import ru.HealthApp.entities.HealthMetricType;
 import ru.HealthApp.exceptions.InvalidMetricException;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 

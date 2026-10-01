@@ -15,7 +15,6 @@ import ru.HealthApp.exceptions.IllegalActionException;
 import ru.HealthApp.exceptions.ResourceNotFoundException;
 import ru.HealthApp.service.validators.IAccessGuard;
 import ru.HealthApp.service.validators.strategy.validation.IRecordValuesValidator;
-import ru.HealthApp.service.validators.strategy.alert.IHealthAlertMessenger;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -34,7 +33,7 @@ public class HealthRecordService {
 
     private final IAccessGuard accessGuard;
     private final IRecordValuesValidator recordValuesValidator;
-    private final IHealthAlertMessenger healthAlertMessenger;
+
 
     @Transactional
     public HealthRecordResponseDTO createRecord(Long actorId, Long targetId, HealthRecordRequestDTO data) {
@@ -43,12 +42,9 @@ public class HealthRecordService {
 
         accessGuard.checkWriteAccess(actor, target);
 
-        recordValuesValidator.validate(data);
-
         HealthRecord record = mapper.toEntity(data, target);
+        recordValuesValidator.validate(record);
         HealthRecord savedRecord = healthRecordRepository.save(record);
-
-        healthAlertMessenger.sendAlert(savedRecord);
 
         return mapper.toResponse(savedRecord);
     }
@@ -93,12 +89,10 @@ public class HealthRecordService {
         HealthRecord record = getRecordFromRepository(recordId);
 
         accessGuard.checkWriteAccess(actor, record.getUser());
-        recordValuesValidator.validate(newData);
 
         this.update(record, newData);
-
+        recordValuesValidator.validate(record);
         HealthRecord updated = healthRecordRepository.save(record);
-        healthAlertMessenger.sendAlert(updated);
 
         return mapper.toResponse(updated);
     }
@@ -132,7 +126,7 @@ public class HealthRecordService {
                 record.setValue2(v2);
                 record.setNote(note);
             } else {
-                throw new IllegalActionException("Разные типы! Невозможно отредактировать запись!");
+                throw IllegalActionException.getRecordTypeMismatchException();
             }
 
         }

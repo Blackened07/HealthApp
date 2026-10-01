@@ -12,25 +12,25 @@ public class AccessGuard implements IAccessGuard {
 
     public void checkManageAccess(User actor) {
         if (!canManageFamily(actor)) {
-            throw new AccessDeniedException(ExceptionMessage.NOT_ADMIN_EXCEPTION.getMessage());
+            throw AccessDeniedException.getNotAdminException();
         }
     }
 
     public void checkReadAccess(User reader, User target) {
         if (!canBeReadBy(target, reader)) {
-            throw new AccessDeniedException(ExceptionMessage.READ_EXCEPTION.getMessage());
+            throw AccessDeniedException.getReadException();
         }
     }
 
     public void checkWriteAccess(User actor, User target) {
         if (!canBeWrittenBy(target, actor)) {
-            throw new AccessDeniedException(ExceptionMessage.WRITE_EXCEPTION.getMessage());
+            throw AccessDeniedException.getWriteException();
         }
     }
 
     public void checkFamilyDashboardAccess(User actor) {
         if (actor.isNoFamily()) {
-            throw new AccessDeniedException(ExceptionMessage.NO_FAMILY_EXCEPTION.getMessage());
+            throw AccessDeniedException.getNoFamilyException();
         }
     }
 

@@ -12,43 +12,43 @@ public class FamilyActionGuard implements IFamilyActionGuard {
 
     public void checkIsAdminEmailInInvitationRequest(User admin){
         if (!admin.isAdmin()) {
-            throw new AccessDeniedException(ExceptionMessage.NOT_ADMIN_EMAIL.getMessage());
+            throw AccessDeniedException.getNotAdminEmailException();
         }
     }
 
     public void checkInvitationToNewFamily(User actor, User invitedUser) {
         if (actor.equals(invitedUser)) {
-            throw new IllegalActionException(ExceptionMessage.SELF_INVITATION_ERROR.getMessage());
+            throw IllegalActionException.getSelfInvitationErrorException();
         }
         if (isActorAllRight(actor)) {
-            throw new IllegalActionException(ExceptionMessage.INVITATION_ERROR.getMessage());
+            throw IllegalActionException.getInvitationErrorException();
         } else if (isInvitedAllRight(invitedUser)) {
-            throw new IllegalActionException(ExceptionMessage.INVITING_ERROR.getMessage());
+            throw IllegalActionException.getInvitingErrorException();
         }
     }
 
     public boolean checkInvitationToExistFamily(User actor, User invitedUser) {
         if (!isActorAllRight(actor)) {
-            throw new IllegalActionException(ExceptionMessage.INVITATION_ERROR.getMessage());
+            throw IllegalActionException.getInvitationErrorException();
         } else if (isInvitedAllRight(invitedUser)) {
-            throw new IllegalActionException(ExceptionMessage.INVITING_ERROR.getMessage());
+            throw IllegalActionException.getInvitingErrorException();
         }
         return true;
     }
 
     public void checkDeletion(User deletionUser, Long familyId ) {
         if (deletionUser.isNoFamily()) {
-            throw new IllegalActionException(ExceptionMessage.USER_IS_NO_FAMILY.getMessage());
+            throw IllegalActionException.getUserIsNoFamilyException();
         }
 
         long deletionUserFamilyId = deletionUser.getFamily().getId();
 
         if (deletionUserFamilyId != familyId) {
-            throw new IllegalActionException(ExceptionMessage.USER_NOT_IN_YOUR_FAMILY.getMessage());
+            throw IllegalActionException.getUserNotInYourFamilyException();
         }
 
         if (deletionUser.isAdmin()) {
-            throw new IllegalArgumentException(ExceptionMessage.CANNOT_REMOVE_ADMIN.getMessage());
+            throw IllegalActionException.getCannotRemoveAdminException();
         }
     }
 

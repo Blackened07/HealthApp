@@ -1,8 +1,8 @@
 package ru.HealthApp.service.validators.strategy.validation;
 
-import ru.HealthApp.dto.HealthRecordRequestDTO;
+import ru.HealthApp.entities.HealthRecord;
 
 public interface IRecordValuesValidator {
 
-    void validate(HealthRecordRequestDTO data);
+    void validate(HealthRecord data);
 }

@@ -5,12 +5,13 @@ import org.springframework.stereotype.Component;
 import ru.HealthApp.config.HealthThresholds;
 import ru.HealthApp.entities.HealthRecord;
 import ru.HealthApp.exceptions.ExceptionMessage;
+import ru.HealthApp.notifications.Message;
 
 @Component
 final class BloodPressureAlert implements IHealthAlertStrategy{
 
     @Override
-    public AlertMessage getAlertMessage(HealthRecord record, String alertReason) {
+    public Message<HealthRecord> getAlertMessage(HealthRecord record, String alertReason) {
         double v1 = record.getValue1();
         double v2 = record.getValue2();
         if (isPressureCritical(v1, v2)) {
@@ -19,7 +20,7 @@ final class BloodPressureAlert implements IHealthAlertStrategy{
                     v1, v2
             );
         }
-        return AlertMessage.create(alertReason);
+        return Message.create(alertReason, record);
     }
 
     private boolean isPressureCritical(Double sys, Double dia) {
@@ -27,6 +28,4 @@ final class BloodPressureAlert implements IHealthAlertStrategy{
         return sys > HealthThresholds.PRESSURE_SYS_MAX || sys < HealthThresholds.PRESSURE_SYS_MIN
                 || dia > HealthThresholds.PRESSURE_DIA_MAX || dia < HealthThresholds.PRESSURE_DIA_MIN;
     }
-
-
 }

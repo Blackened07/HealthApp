@@ -8,7 +8,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ru.HealthApp.dto.FamilyInvitationRequestDTO;
 import ru.HealthApp.config.UserPrincipal;
-import ru.HealthApp.dto.FamilyInvitationResponseDto;
+import ru.HealthApp.dto.FamilyInvitationResponseDTO;
 import ru.HealthApp.service.InvitationService;
 
 @RestController
@@ -30,7 +30,7 @@ public class InvitationController {
     }
 
     @PostMapping
-    public ResponseEntity<FamilyInvitationResponseDto> createInvitation(
+    public ResponseEntity<FamilyInvitationResponseDTO> createInvitation(
             @AuthenticationPrincipal UserPrincipal actor,
             @Valid @RequestBody FamilyInvitationRequestDTO request) {
         var response = invitationService.createInvitation(actor, request);

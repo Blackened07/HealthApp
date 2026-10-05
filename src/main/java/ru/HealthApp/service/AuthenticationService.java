@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.HealthApp.dto.auth.AuthResponseDto;
-import ru.HealthApp.dto.auth.LoginRequestDto;
+import ru.HealthApp.dto.auth.AuthResponseDTO;
+import ru.HealthApp.dto.auth.LoginRequestDTO;
 import ru.HealthApp.exceptions.AccessDeniedException;
 import ru.HealthApp.entities.Account;
 import ru.HealthApp.utils.JwtUtil;
@@ -19,7 +19,7 @@ public class AuthenticationService {
     private final AccountLookupService accountLookupService;
 
     @Transactional(readOnly = true)
-    public AuthResponseDto login(LoginRequestDto request) {
+    public AuthResponseDTO login(LoginRequestDTO request) {
         String email = request.email();
         log.info("Попытка входа для email: {}", email);
 
@@ -38,7 +38,7 @@ public class AuthenticationService {
         String token = JwtUtil.generateToken(account.getEmail(), account.getId(), account.getRole());
         log.info("Успешный вход для email: {}, роль: {}", email, account.getRole());
 
-        return new AuthResponseDto(token, account.getId(), account.getFirstName(), true);
+        return new AuthResponseDTO(token, account.getId(), account.getFirstName(), true);
     }
 
 }

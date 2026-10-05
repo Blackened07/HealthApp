@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.HealthApp.config.UserPrincipal;
 import ru.HealthApp.dto.FamilyInvitationRequestDTO;
-import ru.HealthApp.dto.FamilyInvitationResponseDto;
+import ru.HealthApp.dto.FamilyInvitationResponseDTO;
 import ru.HealthApp.exceptions.IllegalActionException;
 import ru.HealthApp.repository.InvitationRepository;
 import ru.HealthApp.entities.Invitation;
@@ -31,7 +31,7 @@ public class InvitationService {
     }
 
     @Transactional
-    public FamilyInvitationResponseDto createInvitation(
+    public FamilyInvitationResponseDTO createInvitation(
             UserPrincipal actor,
             FamilyInvitationRequestDTO request
     ) {
@@ -44,7 +44,7 @@ public class InvitationService {
         String secretCode = CodeGeneratorUtil.generateFamilyInvitationCode();
         create(secretCode, invitedUserEmail, familyName, actorEmail);
 
-        return new FamilyInvitationResponseDto(secretCode);
+        return new FamilyInvitationResponseDTO(secretCode);
     }
 
     private void checkInvitationIsPossible(String actorEmail, String invitedUserEmail) {

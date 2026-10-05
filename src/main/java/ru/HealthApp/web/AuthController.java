@@ -5,12 +5,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.HealthApp.dto.EmailCheckResponseDto;
+import ru.HealthApp.dto.EmailCheckResponseDTO;
 import ru.HealthApp.dto.auth.AccountResponseDTO;
 import ru.HealthApp.dto.auth.VerificationRequestDTO;
-import ru.HealthApp.dto.auth.AuthResponseDto;
-import ru.HealthApp.dto.auth.LoginRequestDto;
-import ru.HealthApp.dto.auth.RegisterAccountRequestDto;
+import ru.HealthApp.dto.auth.AuthResponseDTO;
+import ru.HealthApp.dto.auth.LoginRequestDTO;
+import ru.HealthApp.dto.auth.RegisterAccountRequestDTO;
 import ru.HealthApp.service.RegistrationService;
 import ru.HealthApp.service.AuthenticationService;
 import ru.HealthApp.service.VerificationService;
@@ -26,7 +26,7 @@ public class AuthController {
     private final VerificationService verificationService;
 
     @PostMapping("/register")
-    public ResponseEntity<AccountResponseDTO> registerAccount(@Valid @RequestBody RegisterAccountRequestDto request) {
+    public ResponseEntity<AccountResponseDTO> registerAccount(@Valid @RequestBody RegisterAccountRequestDTO request) {
 
         AccountResponseDTO accountResponseDTO = registrationService.register(request);
 
@@ -36,11 +36,11 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody LoginRequestDto request) {
+    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
 
-        AuthResponseDto authResponseDto = authenticationService.login(request);
+        AuthResponseDTO authResponseDTO = authenticationService.login(request);
 
-        return ResponseEntity.ok(authResponseDto);
+        return ResponseEntity.ok(authResponseDTO);
     }
 
     @PostMapping("/verify")
@@ -52,9 +52,9 @@ public class AuthController {
     }
 
     @GetMapping("/sendAlert-email")
-    public ResponseEntity<EmailCheckResponseDto> checkEmail(@RequestParam String email) {
+    public ResponseEntity<EmailCheckResponseDTO> checkEmail(@RequestParam String email) {
         boolean exists = registrationService.existsByEmail(email);
-        return ResponseEntity.ok(new EmailCheckResponseDto(!exists));
+        return ResponseEntity.ok(new EmailCheckResponseDTO(!exists));
     }
 
 }

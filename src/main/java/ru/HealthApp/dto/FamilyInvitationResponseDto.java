@@ -1,5 +1,5 @@
 package ru.HealthApp.dto;
 
-public record FamilyInvitationResponseDto(
+public record FamilyInvitationResponseDTO(
         String secretCode
 ) {}

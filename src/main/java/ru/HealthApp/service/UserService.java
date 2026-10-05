@@ -28,6 +28,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper mapper;
     private final JavaMailSender sender;
+    зкш
 
     public UserResponseDTO getUser(Long targetUserId, UserPrincipal userPrincipal) {
         User reader = findById(userPrincipal.userId());
@@ -55,7 +56,7 @@ public class UserService {
         user.setLastActivity(java.time.LocalDateTime.now());
         user.setEnabled(false);
         user.setVerificationCode(code);
-        user.setVerificationExpiresAt(LocalDateTime.now().plusMinutes(15));
+        user.setVerificationExpiresAt(LocalDateTime.now().plusHours(2));
 
         User savedUser = userRepository.save(user);
         sendVerificationCode(code, email);

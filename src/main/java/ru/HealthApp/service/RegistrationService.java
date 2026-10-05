@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.HealthApp.dto.auth.AccountResponseDTO;
-import ru.HealthApp.dto.auth.RegisterAccountRequestDto;
+import ru.HealthApp.dto.auth.RegisterAccountRequestDTO;
 import ru.HealthApp.dto.auth.UserResponseDTO;
 import ru.HealthApp.entities.FamilyRole;
 import ru.HealthApp.exceptions.AccessDeniedException;
@@ -24,7 +24,7 @@ public class RegistrationService {
     private final AccountLookupService accountLookupService;
 
     @Transactional
-    public AccountResponseDTO register(RegisterAccountRequestDto request) {
+    public AccountResponseDTO register(RegisterAccountRequestDTO request) {
         String email = request.email();
         log.info("Попытка регистрации для email: {}", email);
 
@@ -49,7 +49,7 @@ public class RegistrationService {
         return accountLookupService.existsByEmail(email);
     }
 
-    private AccountResponseDTO getAccount(RegisterAccountRequestDto request) {
+    private AccountResponseDTO getAccount(RegisterAccountRequestDTO request) {
         String code = CodeGenerator.generateVerificationEmailCode();
 
         return switch (request.systemRole()) {
@@ -58,7 +58,7 @@ public class RegistrationService {
         };
     }
 
-    private AccountResponseDTO getUserAccount(RegisterAccountRequestDto request, String code) {
+    private AccountResponseDTO getUserAccount(RegisterAccountRequestDTO request, String code) {
         return userService.createUser(
                 request.email(),
                 request.password(),
@@ -66,11 +66,11 @@ public class RegistrationService {
                 code);
     }
 
-    private AccountResponseDTO getDoctorAccount(RegisterAccountRequestDto request, String code) {
+    private AccountResponseDTO getDoctorAccount(RegisterAccountRequestDTO request, String code) {
         throw AccessDeniedException.getDoctorRegistrationDisabledException();
     }
 
-    private AccountResponseDTO getNotEnabledAccount(RegisterAccountRequestDto request) {
+    private AccountResponseDTO getNotEnabledAccount(RegisterAccountRequestDTO request) {
         return new UserResponseDTO(0L, request.email(), request.firstName(), FamilyRole.NO_FAMILY_USER, LocalDateTime.now());
     }
 }

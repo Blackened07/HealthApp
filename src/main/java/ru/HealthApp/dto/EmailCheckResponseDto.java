@@ -1,5 +1,5 @@
 package ru.HealthApp.dto;
 
-public record EmailCheckResponseDto(
+public record EmailCheckResponseDTO(
         boolean available
 ) {}

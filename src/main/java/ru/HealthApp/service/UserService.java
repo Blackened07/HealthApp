@@ -28,7 +28,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper mapper;
     private final JavaMailSender sender;
-    зкш
 
     public UserResponseDTO getUser(Long targetUserId, UserPrincipal userPrincipal) {
         User reader = findById(userPrincipal.userId());

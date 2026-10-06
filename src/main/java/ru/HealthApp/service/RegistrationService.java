@@ -33,7 +33,7 @@ public class RegistrationService {
 
             if (!account.isEnabled()) {
                 log.warn("Аккаунт уже существует, но не верифицирован: {}", email);
-                return getNotEnabledAccount(request);
+                throw AccessDeniedException.getNotVerifyEmailException();
             }
 
             log.warn("Попытка регистрации с уже верифицированным email: {}", email);
@@ -69,8 +69,5 @@ public class RegistrationService {
     private AccountResponseDTO getDoctorAccount(RegisterAccountRequestDTO request, String code) {
         throw AccessDeniedException.getDoctorRegistrationDisabledException();
     }
-
-    private AccountResponseDTO getNotEnabledAccount(RegisterAccountRequestDTO request) {
-        return new UserResponseDTO(0L, request.email(), request.firstName(), FamilyRole.NO_FAMILY_USER, LocalDateTime.now());
-    }
+    
 }

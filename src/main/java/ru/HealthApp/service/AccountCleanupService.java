@@ -16,7 +16,7 @@ public class AccountCleanupService {
 
     private final AccountRepository accountRepository;
 
-    @Scheduled(fixedRate = 3600000) // Запуск каждый час (3600000 мс)
+    @Scheduled(fixedRate = 3600000)
     @Transactional
     public void deleteUnverifiedAccounts() {
         LocalDateTime threshold = LocalDateTime.now().minusHours(24);

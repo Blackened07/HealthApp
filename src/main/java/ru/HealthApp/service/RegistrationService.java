@@ -6,13 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.HealthApp.dto.auth.AccountResponseDTO;
 import ru.HealthApp.dto.auth.RegisterAccountRequestDTO;
-import ru.HealthApp.dto.auth.UserResponseDTO;
-import ru.HealthApp.entities.FamilyRole;
 import ru.HealthApp.exceptions.AccessDeniedException;
 import ru.HealthApp.entities.Account;
 import ru.HealthApp.utils.CodeGenerator;
-
-import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -69,5 +65,5 @@ public class RegistrationService {
     private AccountResponseDTO getDoctorAccount(RegisterAccountRequestDTO request, String code) {
         throw AccessDeniedException.getDoctorRegistrationDisabledException();
     }
-    
+
 }

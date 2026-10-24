@@ -67,7 +67,10 @@ public class FamilyController {
     public ResponseEntity<FamilyResponseDTO> isFamilyUser(@AuthenticationPrincipal UserPrincipal actor) {
         Long id = actor.userId();
         FamilyResponseDTO request = familyMembershipService.getUserFamilyInfo(id);
-        return ResponseEntity.ok(request);
+
+        return request.familyId() == 0L ?
+                ResponseEntity.status(HttpStatus.FORBIDDEN).body(request) :
+                ResponseEntity.ok(request);
     }
 
     //invite doctor to family

@@ -15,7 +15,6 @@ import ru.HealthApp.service.RegistrationService;
 import ru.HealthApp.service.AuthenticationService;
 import ru.HealthApp.service.VerificationService;
 
-
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -40,14 +39,14 @@ public class AuthController {
 
         AuthResponseDTO authResponseDTO = authenticationService.login(request);
 
-        return ResponseEntity.ok(authResponseDTO);
+        return authResponseDTO.success() ?
+                ResponseEntity.ok(authResponseDTO) :
+                ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(authResponseDTO);
     }
 
     @PostMapping("/verify")
     public ResponseEntity<?> verify(@Valid @RequestBody VerificationRequestDTO request) {
-
         verificationService.verify(request);
-
         return ResponseEntity.ok("Почта успешно подтверждена!");
     }
 

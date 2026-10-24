@@ -1,5 +1,6 @@
 package ru.HealthApp.exceptions;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -49,6 +50,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(response);
     }
 
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ErrorResponse> handleExpiredJwtException(
+            ExpiredJwtException e,
+            HttpServletRequest request) {
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+        String message = "Token expired";
+
+        log.warn("Сессия истекла (401): {} на URL: {}. IP: {}",
+                message, request.getRequestURI(), request.getRemoteAddr());
+
+        ErrorResponse response = ErrorResponse.of(status, message, false);
+
+        return ResponseEntity.status(status).body(response);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex,
@@ -91,5 +107,9 @@ public class GlobalExceptionHandler {
             int status,
             String message,
             boolean critical
-    ) {}
+    ) {
+        public static ErrorResponse of(HttpStatus status, String message, boolean critical) {
+            return new ErrorResponse(LocalDateTime.now(), status.value(), message, critical);
+        }
+    }
 }
